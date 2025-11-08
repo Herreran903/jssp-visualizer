@@ -1,19 +1,25 @@
 // src/app/page.tsx
-"use client";
-import { BlueprintOnTable } from "@/components/blueprint/blueprint-on-table";
-import DraftingTableModel from "@/components/scene/drafting-table-model";
-import SceneContainer from "@/components/scene/scene-container";
-import { useState } from "react";
+'use client'
+import Link from 'next/link'
+import Card from '../components/ui/Card'
 
 export default function Home() {
-  const [isSolved, setIsSolved] = useState(false);
-
+  const links = [
+    { href: '/instances', title: 'Instancias' },
+    { href: '/configure', title: 'Configurar' },
+    { href: '/run', title: 'Ejecutar' },
+    { href: '/results', title: 'Resultados' },
+    { href: '/export', title: 'Exportar' },
+  ]
   return (
-    <main className="h-screen w-full">
-      <SceneContainer isSolved={isSolved}>
-        <DraftingTableModel />
-        <BlueprintOnTable isSolved={isSolved} setIsSolved={setIsSolved} />
-      </SceneContainer>
+    <main className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {links.map((l) => (
+        <Link key={l.href} href={l.href}>
+          <Card className="cursor-pointer hover:bg-white/10 transition-colors">
+            <div className="text-lg font-semibold">{l.title}</div>
+          </Card>
+        </Link>
+      ))}
     </main>
-  );
+  )
 }
