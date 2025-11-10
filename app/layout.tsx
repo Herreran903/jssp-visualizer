@@ -1,16 +1,20 @@
-// src/app/layout.tsx
 import type { Metadata } from 'next'
-import localFont from 'next/font/local'
 import './globals.css'
+import WorkbenchFrame from '../components/containers/WorkbenchFrame'
+import { Patrick_Hand_SC, Rock_Salt } from 'next/font/google'
+import Link from 'next/link'
 
-const fluxArchitect = localFont({
-  src: [
-    { path: '../public/fonts/Flux Architect Regular.ttf', weight: '400', style: 'normal' },
-    { path: '../public/fonts/Flux Architect Italic.ttf', weight: '400', style: 'italic' },
-    { path: '../public/fonts/Flux Architect Bold.ttf', weight: '700', style: 'normal' },
-    { path: '../public/fonts/Flux Architect Bold Italic.ttf', weight: '700', style: 'italic' },
-  ],
-  variable: '--font-flux-architect',
+const hand = Patrick_Hand_SC({
+  weight: '400',
+  subsets: ['latin'],
+  variable: '--font-hand',
+  display: 'swap',
+})
+
+const rockSalt = Rock_Salt({
+  weight: '400',
+  subsets: ['latin'],
+  variable: '--font-title',
   display: 'swap',
 })
 
@@ -24,21 +28,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? ''
   return (
     <html lang="es" data-mock={isMock ? 'true' : 'false'} data-backend={backendUrl}>
-      <body className={`${fluxArchitect.variable} min-h-screen`}>
-        <div className="mx-auto max-w-6xl p-6">
-          <header className="mb-6 flex items-center justify-between">
-            <h1 className="text-xl font-bold">JSSP</h1>
-            <nav className="flex gap-3 text-sm text-gray-300">
-              <a href="/instances" className="hover:text-white">Instancias</a>
-              <a href="/configure" className="hover:text-white">Configurar</a>
-              <a href="/run" className="hover:text-white">Ejecutar</a>
-              <a href="/results" className="hover:text-white">Resultados</a>
-              <a href="/export" className="hover:text-white">Exportar</a>
-            </nav>
-          </header>
+      <body className={`${hand.variable} ${rockSalt.variable} font-sans`}>
+        <WorkbenchFrame
+          title="JSSP"
+          nav={
+            <nav className="flex gap-3" aria-label="Secciones">
+            <Link href="/instances"  className="hover:underline underline-offset-4">Instancias</Link>
+            <Link href="/configure" className="hover:underline underline-offset-4">Configurar</Link>
+            <Link href="/run"       className="hover:underline underline-offset-4">Ejecutar</Link>
+            <Link href="/results"   className="hover:underline underline-offset-4">Resultados</Link>
+            <Link href="/export"    className="hover:underline underline-offset-4">Exportar</Link>
+          </nav>
+      
+          }
+        >
           {children}
-        </div>
+        </WorkbenchFrame>
       </body>
     </html>
   )
 }
+ 

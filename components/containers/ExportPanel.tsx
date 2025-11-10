@@ -27,7 +27,7 @@ export default function ExportPanel() {
     <Card className="space-y-3">
       <div className="text-lg font-semibold">Exportar</div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <input className="rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white" placeholder="solutionId" value={jobId} onChange={(e) => setJobId(e.target.value)} />
+        <input className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder-slate-400 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm" placeholder="solutionId" value={jobId} onChange={(e) => setJobId(e.target.value)} />
         <Select value={format} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormat(e.target.value as any)}>
           <option value="csv">CSV</option>
           <option value="pdf">PDF</option>
@@ -36,7 +36,7 @@ export default function ExportPanel() {
         <Button onClick={doExport}>Generar</Button>
       </div>
       {url && (
-        <a href={url} target="_blank" className="text-sm text-blue-400 underline">Descargar</a>
+        <a href={url} target="_blank" className="text-sm text-blue-600 underline">Descargar</a>
       )}
     </Card>
   )

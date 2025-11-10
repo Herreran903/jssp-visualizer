@@ -27,7 +27,7 @@ export default function SearchConfigurator() {
       <div className="text-lg font-semibold">Búsqueda</div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <div>
-          <div className="mb-1 text-xs text-gray-400">Heurística</div>
+          <div className="mb-1 text-xs text-slate-600">Heurística</div>
           <Select value={cfg.heuristic} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setCfg({ ...cfg, heuristic: e.target.value as any })}>
             <option value="greedy">Greedy</option>
             <option value="tabu">Tabu</option>
@@ -35,11 +35,11 @@ export default function SearchConfigurator() {
           </Select>
         </div>
         <div>
-          <div className="mb-1 text-xs text-gray-400">Tiempo (s)</div>
+          <div className="mb-1 text-xs text-slate-600">Tiempo (s)</div>
           <Input type="number" value={cfg.timeLimitSec} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCfg({ ...cfg, timeLimitSec: Number(e.target.value) })} />
         </div>
         <div>
-          <div className="mb-1 text-xs text-gray-400">Máx. soluciones</div>
+          <div className="mb-1 text-xs text-slate-600">Máx. soluciones</div>
           <Input type="number" value={cfg.maxSolutions} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCfg({ ...cfg, maxSolutions: Number(e.target.value) })} />
         </div>
       </div>

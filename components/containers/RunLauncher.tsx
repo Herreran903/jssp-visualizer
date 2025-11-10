@@ -45,13 +45,13 @@ export default function RunLauncher() {
       <div className="text-lg font-semibold">Ejecutar</div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <div>
-          <div className="mb-1 text-xs text-gray-400">Instancia</div>
+          <div className="mb-1 text-xs text-slate-600">Instancia</div>
           <Select value={instanceId} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setInstanceId(e.target.value)}>
             {instances.map(i => <option key={i.id} value={i.id}>{i.name}</option>)}
           </Select>
         </div>
         <div>
-          <div className="mb-1 text-xs text-gray-400">Modelo</div>
+          <div className="mb-1 text-xs text-slate-600">Modelo</div>
           <Select value={modelId} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setModelId(e.target.value)}>
             {models.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
           </Select>
@@ -62,7 +62,7 @@ export default function RunLauncher() {
         </div>
       </div>
       {jobId && (
-        <div className="text-sm text-gray-300">
+        <div className="text-sm text-slate-600">
           jobId: <span className="font-mono">{jobId}</span> — estado: <span className="font-semibold">{status}</span>
         </div>
       )}

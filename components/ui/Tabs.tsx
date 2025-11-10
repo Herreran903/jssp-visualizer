@@ -7,7 +7,11 @@ export default function Tabs({ tabs, active, onChange }: { tabs: string[]; activ
         <button
           key={t}
           onClick={() => onChange(i)}
-          className={`px-3 py-1 rounded text-sm ${i === active ? "bg-blue-600 text-white" : "bg-white/5 text-gray-300 hover:bg-white/10"}`}
+          className={`px-3 py-1 rounded text-sm focus-visible:ring-2 focus-visible:ring-blue-500 outline-none ${
+            i === active
+              ? "bg-blue-600 text-white shadow-sm"
+              : "bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-300"
+          }`}
         >
           {t}
         </button>

@@ -30,7 +30,7 @@ export default function ResultsDashboard() {
       <Card className="space-y-3">
         <div className="text-lg font-semibold">Resultados</div>
         <div className="flex items-end gap-2">
-          <input className="w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white" placeholder="jobId" value={jobId} onChange={(e) => setJobId(e.target.value)} />
+          <input className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder-slate-400 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm" placeholder="jobId" value={jobId} onChange={(e) => setJobId(e.target.value)} />
           <Button onClick={load}>Cargar</Button>
         </div>
       </Card>
@@ -38,7 +38,7 @@ export default function ResultsDashboard() {
       {result?.solution && (
         <>
           <Card>
-            <div className="mb-3 text-sm text-gray-400">Gantt</div>
+            <div className="mb-3 text-sm text-slate-600">Gantt</div>
             <GanttMini makespan={result.solution.makespan} machines={result.solution.machines} operations={result.solution.operations} />
           </Card>
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
@@ -47,7 +47,7 @@ export default function ResultsDashboard() {
             <Stat label="Máquinas" value={result.solution.machines.length} />
           </div>
           <Card>
-            <div className="mb-3 text-sm text-gray-400">Métricas</div>
+            <div className="mb-3 text-sm text-slate-600">Métricas</div>
             <Chart data={chartData} kind="bar" />
           </Card>
         </>

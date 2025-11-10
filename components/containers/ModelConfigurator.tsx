@@ -29,13 +29,13 @@ export default function ModelConfigurator() {
       <div className="text-lg font-semibold">Modelo</div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
-          <div className="mb-1 text-xs text-gray-400">Modelo</div>
+          <div className="mb-1 text-xs text-slate-600">Modelo</div>
           <Select value={modelId} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setModelId(e.target.value)}>
             {models.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
           </Select>
         </div>
         <div>
-          <div className="mb-1 text-xs text-gray-400">Variación</div>
+          <div className="mb-1 text-xs text-slate-600">Variación</div>
           <Select value={variation} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setVariation(e.target.value)}>
             {(selected?.variations || []).map(v => <option key={v} value={v}>{v}</option>)}
           </Select>

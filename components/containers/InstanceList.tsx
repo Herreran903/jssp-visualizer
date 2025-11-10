@@ -16,7 +16,7 @@ export default function InstanceList() {
   return (
     <Card>
       <div className="mb-2 text-lg font-semibold">Lista</div>
-      {loading ? <div className="text-sm text-gray-400">Cargando…</div> : <Table data={instances} columns={cols} />}
+      {loading ? <div className="text-sm text-slate-600">Cargando…</div> : <Table data={instances} columns={cols} />}
     </Card>
   )
 }

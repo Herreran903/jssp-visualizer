@@ -31,7 +31,7 @@ export default function InstanceUploader() {
       <div className="space-y-2">
         <FileDrop onFiles={(files) => setFile(files[0])} />
         {file && (
-          <div className="flex items-center justify-between text-sm text-gray-300">
+          <div className="flex items-center justify-between text-sm text-slate-600">
             <span>{file.name} ({file.size} bytes)</span>
             <Button onClick={doUpload}>Subir</Button>
           </div>
