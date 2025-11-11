@@ -1,18 +1,22 @@
-// components/containers/RunLauncher.tsx
+/* components/containers/RunLauncher.tsx */
 "use client"
 import Card from "../ui/Card"
 import Button from "../ui/Button"
 import Select from "../ui/Select"
 import useInstances from "../../hooks/useInstances"
 import useModels from "../../hooks/useModels"
-import useSolve from "../../hooks/useSolve"
+import useOneShot from "../../hooks/useOneShot"
+import useRunStore from "../../hooks/useRunStore"
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import type { SearchConfig } from "../../types/domain"
 
 export default function RunLauncher() {
+  const router = useRouter()
+  const { setRun } = useRunStore()
   const { instances } = useInstances()
   const { models } = useModels()
-  const { runSolve, pollSolution, jobId, status } = useSolve()
+  const { runOnce, loading } = useOneShot()
   const [instanceId, setInstanceId] = useState("")
   const [modelId, setModelId] = useState("")
   const [search, setSearch] = useState<SearchConfig>({ heuristic: "greedy", timeLimitSec: 5, maxSolutions: 1 })
@@ -33,11 +37,18 @@ export default function RunLauncher() {
 
   async function onRun() {
     if (!instanceId || !modelId) return
-    await runSolve({ instanceId, modelId, search })
-  }
-
-  async function onPoll() {
-    await pollSolution()
+    const inst = instances.find(i => i.id === instanceId)
+    const variation = (typeof window !== "undefined" && localStorage.getItem("jssp:variation")) || ""
+    const result = await runOnce({
+      modelId,
+      variation: variation || undefined,
+      instanceId,
+      instanceName: inst?.name || instanceId,
+      search,
+    })
+    // Keep only in memory for this session and navigate to results
+    setRun(result)
+    router.replace("/results")
   }
 
   return (
@@ -57,15 +68,9 @@ export default function RunLauncher() {
           </Select>
         </div>
         <div className="flex items-end gap-2">
-          <Button onClick={onRun}>Ejecutar</Button>
-          <Button variant="ghost" onClick={onPoll}>Polling</Button>
+          <Button onClick={onRun} disabled={loading}>Ejecutar</Button>
         </div>
       </div>
-      {jobId && (
-        <div className="text-sm text-slate-600">
-          jobId: <span className="font-mono">{jobId}</span> — estado: <span className="font-semibold">{status}</span>
-        </div>
-      )}
     </Card>
   )
 }

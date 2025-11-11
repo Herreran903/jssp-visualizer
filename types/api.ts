@@ -24,10 +24,27 @@ export interface SolveResponse {
 
 export type SolutionStatus = 'PENDING' | 'RUNNING' | 'COMPLETED' | 'ERROR'
 
+// Extra metadata returned by the one-shot execution endpoint
+export interface ExecutionMeta {
+  instanceId?: string
+  instanceName?: string
+  jobs?: number
+  machines?: number
+  operations?: number
+  elapsedMs?: number
+  timeLimit?: number
+  seed?: number
+  strategy?: string
+  modelId?: string
+  variation?: string
+  timestamp?: string
+}
+
 export interface SolutionEnvelope {
   status: SolutionStatus
   solution?: Solution
   logs?: string[]
+  meta?: ExecutionMeta
 }
 
 export interface ExportRequest {

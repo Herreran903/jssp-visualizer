@@ -33,12 +33,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           title="JSSP"
           nav={
             <nav className="flex gap-3" aria-label="Secciones">
-            <Link href="/instances"  className="hover:underline underline-offset-4">Instancias</Link>
-            <Link href="/configure" className="hover:underline underline-offset-4">Configurar</Link>
-            <Link href="/run"       className="hover:underline underline-offset-4">Ejecutar</Link>
-            <Link href="/results"   className="hover:underline underline-offset-4">Resultados</Link>
-            <Link href="/export"    className="hover:underline underline-offset-4">Exportar</Link>
-          </nav>
+              <Link href="/instances"  className="hover:underline underline-offset-4">Instancias</Link>
+              <Link href="/configure" className="hover:underline underline-offset-4">Configurar</Link>
+              <Link href="/run"       className="hover:underline underline-offset-4">Ejecutar</Link>
+            </nav>
       
           }
         >
