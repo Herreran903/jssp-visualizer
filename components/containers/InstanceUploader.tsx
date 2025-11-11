@@ -26,12 +26,12 @@ export default function InstanceUploader() {
   }
 
   return (
-    <Card className="space-y-4">
-      <div className="text-lg font-semibold">Instancias</div>
+    <Card className="space-y-4 font-hand">
+      <div className="text-xl font-bold uppercase">Instancias</div>
       <div className="space-y-2">
         <FileDrop onFiles={(files) => setFile(files[0])} />
         {file && (
-          <div className="flex items-center justify-between text-sm text-slate-600">
+          <div className="flex items-center justify-between text-sm text-slate-700 font-hand uppercase">
             <span>{file.name} ({file.size} bytes)</span>
             <Button onClick={doUpload}>Subir</Button>
           </div>

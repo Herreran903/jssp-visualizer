@@ -23,11 +23,11 @@ export default function SearchConfigurator() {
   }, [cfg])
 
   return (
-    <Card className="space-y-3">
-      <div className="text-lg font-semibold">Búsqueda</div>
+    <Card className="space-y-3 font-hand">
+      <div className="text-xl font-bold uppercase">Búsqueda</div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <div>
-          <div className="mb-1 text-xs text-slate-600">Heurística</div>
+          <div className="mb-1 text-xs text-slate-700 uppercase">Heurística</div>
           <Select value={cfg.heuristic} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setCfg({ ...cfg, heuristic: e.target.value as any })}>
             <option value="greedy">Greedy</option>
             <option value="tabu">Tabu</option>
@@ -35,11 +35,11 @@ export default function SearchConfigurator() {
           </Select>
         </div>
         <div>
-          <div className="mb-1 text-xs text-slate-600">Tiempo (s)</div>
+          <div className="mb-1 text-xs text-slate-700 uppercase">Tiempo (s)</div>
           <Input type="number" value={cfg.timeLimitSec} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCfg({ ...cfg, timeLimitSec: Number(e.target.value) })} />
         </div>
         <div>
-          <div className="mb-1 text-xs text-slate-600">Máx. soluciones</div>
+          <div className="mb-1 text-xs text-slate-700 uppercase">Máx. soluciones</div>
           <Input type="number" value={cfg.maxSolutions} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCfg({ ...cfg, maxSolutions: Number(e.target.value) })} />
         </div>
       </div>

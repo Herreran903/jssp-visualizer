@@ -5,7 +5,7 @@ import SearchConfigurator from "../../../components/containers/SearchConfigurato
 
 export default function ConfigurePage() {
   return (
-    <main className="space-y-6">
+    <main className="space-y-6 font-hand uppercase text-slate-800">
       <ModelConfigurator />
       <SearchConfigurator />
     </main>

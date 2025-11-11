@@ -25,17 +25,17 @@ export default function ModelConfigurator() {
   const selected = models.find(m => m.id === modelId)
 
   return (
-    <Card className="space-y-3">
-      <div className="text-lg font-semibold">Modelo</div>
+    <Card className="space-y-3 font-hand">
+      <div className="text-xl font-bold uppercase">Modelo</div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
-          <div className="mb-1 text-xs text-slate-600">Modelo</div>
+          <div className="mb-1 text-xs text-slate-700 uppercase">Modelo</div>
           <Select value={modelId} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setModelId(e.target.value)}>
             {models.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
           </Select>
         </div>
         <div>
-          <div className="mb-1 text-xs text-slate-600">Variación</div>
+          <div className="mb-1 text-xs text-slate-700 uppercase">Variación</div>
           <Select value={variation} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setVariation(e.target.value)}>
             {(selected?.variations || []).map(v => <option key={v} value={v}>{v}</option>)}
           </Select>

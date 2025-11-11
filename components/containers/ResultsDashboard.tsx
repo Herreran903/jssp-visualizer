@@ -90,12 +90,12 @@ export default function ResultsDashboard() {
     typeof meta.timeLimit === "number" ? meta.timeLimit : meta.timeLimit && typeof meta.timeLimit === "string" ? Number(meta.timeLimit) : undefined
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-hand uppercase text-slate-800">
       {/* Panel de metadatos */}
       {lastRun?.solution && (
-        <Card className="space-y-3">
+        <Card className="space-y-3 font-hand">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="text-lg font-semibold">Ejecución</div>
+            <div className="text-xl font-bold uppercase">Ejecución</div>
             <div className="flex gap-2">
               <Button variant="ghost" onClick={copyJSON}>Copiar JSON</Button>
               <Button onClick={exportJSON}>Exportar</Button>
@@ -103,29 +103,29 @@ export default function ResultsDashboard() {
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div>
-              <div className="mb-1 text-xs text-slate-600">Instancia</div>
+              <div className="mb-1 text-xs text-slate-700 uppercase">Instancia</div>
               <div className="text-sm">{instanceLabel}</div>
             </div>
             <div>
-              <div className="mb-1 text-xs text-slate-600">Jobs × Máquinas</div>
+              <div className="mb-1 text-xs text-slate-700 uppercase">Jobs × Máquinas</div>
               <div className="text-sm">{jmLabel}</div>
             </div>
             <div>
-              <div className="mb-1 text-xs text-slate-600">Fecha/Hora</div>
+              <div className="mb-1 text-xs text-slate-700 uppercase">Fecha/Hora</div>
               <div className="text-sm">{meta.timestamp || "—"}</div>
             </div>
             <div>
-              <div className="mb-1 text-xs text-slate-600">Estrategia</div>
+              <div className="mb-1 text-xs text-slate-700 uppercase">Estrategia</div>
               <div className="text-sm">{meta.strategy || "—"}</div>
             </div>
             <div>
-              <div className="mb-1 text-xs text-slate-600">Modelo</div>
+              <div className="mb-1 text-xs text-slate-700 uppercase">Modelo</div>
               <div className="text-sm">
                 {meta.modelId || "—"}{meta.variation ? ` · ${meta.variation}` : ""}
               </div>
             </div>
             <div>
-              <div className="mb-1 text-xs text-slate-600">Tiempo/Seed</div>
+              <div className="mb-1 text-xs text-slate-700 uppercase">Tiempo/Seed</div>
               <div className="text-sm">
                 {typeof meta.elapsedMs === "number" ? `${meta.elapsedMs} ms` : "—"}
                 {typeof timeLimitMs === "number" ? ` / límite ${timeLimitMs} ms` : ""}
@@ -137,11 +137,11 @@ export default function ResultsDashboard() {
       )}
 
       {/* Comparador simple */}
-      <Card className="space-y-3">
+      <Card className="space-y-3 font-hand">
         <div className="flex items-center justify-between">
-          <div className="text-lg font-semibold">Resultados</div>
+          <div className="text-xl font-bold uppercase">Resultados</div>
           <div className="flex items-center gap-2">
-            <label className="text-sm text-slate-700">
+            <label className="text-sm text-slate-700 font-hand uppercase">
               <input
                 type="checkbox"
                 className="mr-2 align-middle"
@@ -162,7 +162,7 @@ export default function ResultsDashboard() {
         {compare && lastRun?.solution && (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="text-left text-slate-600">
+              <thead className="text-left text-slate-700 border-b border-dashed border-black/10">
                 <tr>
                   <th className="px-3 py-2 font-semibold">Métrica</th>
                   <th className="px-3 py-2 font-semibold">Última</th>
@@ -170,27 +170,27 @@ export default function ResultsDashboard() {
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-t border-slate-200">
+                <tr className="border-b border-dashed border-black/10">
                   <td className="px-3 py-2">Makespan</td>
                   <td className="px-3 py-2">{sumA?.makespan ?? "—"}</td>
                   <td className="px-3 py-2">{sumB?.makespan ?? "—"}</td>
                 </tr>
-                <tr className="border-t border-slate-200">
+                <tr className="border-b border-dashed border-black/10">
                   <td className="px-3 py-2">Tardiness total</td>
                   <td className="px-3 py-2">{sumA?.tardinessTotal ?? "—"}</td>
                   <td className="px-3 py-2">{sumB?.tardinessTotal ?? "—"}</td>
                 </tr>
-                <tr className="border-t border-slate-200">
+                <tr className="border-b border-dashed border-black/10">
                   <td className="px-3 py-2">#Operaciones</td>
                   <td className="px-3 py-2">{sumA?.operations ?? "—"}</td>
                   <td className="px-3 py-2">{sumB?.operations ?? "—"}</td>
                 </tr>
-                <tr className="border-t border-slate-200">
+                <tr className="border-b border-dashed border-black/10">
                   <td className="px-3 py-2">#Violaciones</td>
                   <td className="px-3 py-2">{sumA?.violations ?? "—"}</td>
                   <td className="px-3 py-2">{sumB?.violations ?? "—"}</td>
                 </tr>
-                <tr className="border-t border-slate-200 align-top">
+                <tr className="border-b border-dashed border-black/10 align-top">
                   <td className="px-3 py-2">Utilización por máquina</td>
                   <td className="px-3 py-2">
                     {sumA?.utilPerMachine
@@ -216,8 +216,8 @@ export default function ResultsDashboard() {
       {/* Gantt con switch A/B (una sola vista) */}
       {current?.solution && (
         <>
-          <Card>
-            <div className="mb-3 text-sm text-slate-600">Gantt</div>
+          <Card className="font-hand">
+            <div className="mb-3 text-sm text-slate-700 uppercase">Gantt</div>
             <GanttMini
               makespan={current.solution.makespan}
               machines={current.solution.machines}
@@ -233,8 +233,8 @@ export default function ResultsDashboard() {
           </div>
 
           {/* Métricas detalladas */}
-          <Card>
-            <div className="mb-3 text-sm text-slate-600">Métricas</div>
+          <Card className="font-hand">
+            <div className="mb-3 text-sm text-slate-700 uppercase">Métricas</div>
             <Chart data={chartData} kind="bar" />
           </Card>
         </>

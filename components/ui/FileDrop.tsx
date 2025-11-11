@@ -17,10 +17,10 @@ export default function FileDrop({ onFiles }: { onFiles: (files: File[]) => void
   return (
     <div
       {...getRootProps()}
-      className={`rounded-md border-2 border-dashed p-6 text-center transition-colors ${isDragActive ? 'border-blue-400 bg-blue-50' : 'border-slate-300 bg-white hover:bg-slate-50'}`}
+      className={`rounded-none border-2 border-dashed p-6 text-center transition-colors ${isDragActive ? 'border-black/60 bg-black/5' : 'border-black/30 bg-transparent hover:bg-black/5'}`}
     >
       <input {...getInputProps()} />
-      <p className="text-sm text-slate-600">Suelta un .dzn o haz click para seleccionar</p>
+      <p className="text-xs text-slate-700 font-hand uppercase tracking-wide">Suelta un .dzn o haz click para seleccionar</p>
     </div>
   )
 }

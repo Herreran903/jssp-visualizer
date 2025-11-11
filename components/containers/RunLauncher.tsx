@@ -52,17 +52,17 @@ export default function RunLauncher() {
   }
 
   return (
-    <Card className="space-y-3">
-      <div className="text-lg font-semibold">Ejecutar</div>
+    <Card className="space-y-3 font-hand">
+      <div className="text-xl font-bold uppercase">Ejecutar</div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <div>
-          <div className="mb-1 text-xs text-slate-600">Instancia</div>
+          <div className="mb-1 text-xs text-slate-700 font-hand uppercase">Instancia</div>
           <Select value={instanceId} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setInstanceId(e.target.value)}>
             {instances.map(i => <option key={i.id} value={i.id}>{i.name}</option>)}
           </Select>
         </div>
         <div>
-          <div className="mb-1 text-xs text-slate-600">Modelo</div>
+          <div className="mb-1 text-xs text-slate-700 font-hand uppercase">Modelo</div>
           <Select value={modelId} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setModelId(e.target.value)}>
             {models.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
           </Select>
