@@ -42,7 +42,7 @@ export default function ResultsDashboard() {
     }
     return {
       makespan,
-      tardinessTotal: Number((stats.tardanza ?? stats.tardiness ?? 0) as number),
+      tardinessTotal: Number((stats.w ?? stats.tardanza ?? stats.tardiness ?? 0) as number),
       operations: ops.length,
       machines: machines.length,
       violations: Number((stats.violations ?? 0) as number),

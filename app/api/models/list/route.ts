@@ -5,8 +5,7 @@ export async function GET() {
   if (process.env.USE_MOCKS === "true") {
     return NextResponse.json({
       models: [
-        { id: "basic", name: "Básico", variations: ["std", "sym"] },
-        { id: "advanced", name: "Avanzado", variations: ["cutting", "tight"] },
+        { id: "jobshop", name: "Job Shop", variations: ["tardanza", "mantenimiento"] },
       ],
     })
   }

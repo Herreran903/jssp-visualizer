@@ -49,8 +49,8 @@ export async function POST(req: Request) {
     // Gather inputs (multipart or JSON)
     let instanceId = ""
     let instanceName = ""
-    let modelId = "basic"
-    let variation = ""
+    let modelId = "jobshop"
+    let variation = "tardanza"
     let search: any = { heuristic: "greedy", timeLimitSec: 5, maxSolutions: 1 }
     let _fileName = ""
 
@@ -94,7 +94,7 @@ export async function POST(req: Request) {
       { jobId: "J3", machineId: "M2", opId: "J3-3", start: 58, end: 88, duration: 30 },
     ]
     const makespan = 100
-    const stats = { makespan, util: 0.72, tardanza: 12 }
+    const stats = { util: 0.72, w: 12 }
 
     const solution = { makespan, machines, operations: ops, stats }
     const meta = buildMeta({ instanceId, instanceName, modelId, variation, search, solution })
@@ -105,6 +105,7 @@ export async function POST(req: Request) {
       logs: [
         `file:${_fileName || "inline"}`,
         `model:${modelId}`,
+        `variation:${variation || ""}`,
         `heuristic:${search?.heuristic ?? "greedy"}`,
       ],
       meta,
