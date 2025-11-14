@@ -30,41 +30,33 @@ export default function InstancePreviewModal({ instance, onClose }: InstancePrev
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
       <div 
-        className="bg-white w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl"
+        className="bg-(--color-surface) w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col elevation-2 ring-1 ring-(--color-border-subtle)"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="p-6 border-b border-slate-200">
+        <div className="p-6 bg-(--color-surface-alt) border-b border-(--color-border-subtle)">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold font-hand uppercase">{metadata.name}</h2>
+            <h2 className="text-2xl font-extrabold font-title tracking-tight text-(--color-text-primary)">{metadata.name}</h2>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-slate-100 rounded transition-colors"
+              className="p-2 hover:bg-(--overlay-08) rounded transition-colors text-(--color-text-secondary) focus-visible:ring-2 focus-visible:ring-(--color-accent)"
               aria-label="Cerrar"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
           <div className="mt-2 flex gap-2 items-center text-sm font-hand uppercase text-slate-600">
-            <span className={`px-2 py-1 rounded text-xs ${
-              metadata.problemType === 'jssp_maint' 
-                ? 'bg-blue-100 text-blue-700' 
-                : 'bg-purple-100 text-purple-700'
-            }`}>
+            <span className={`badge ${metadata.problemType === 'jssp_maint' ? 'badge--type-maint' : 'badge--type-tard'}`}>
               {metadata.problemType === 'jssp_maint' ? 'JSSP Mantenimiento' : 'Tardanza Ponderada'}
             </span>
-            <span className={`px-2 py-1 rounded text-xs ${
-              metadata.validated 
-                ? 'bg-green-100 text-green-700' 
-                : 'bg-red-100 text-red-700'
-            }`}>
+            <span className={`badge ${metadata.validated ? 'badge--success' : 'badge--danger'}`}>
               {metadata.validated ? '✓ Validado' : '✗ Con errores'}
             </span>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="border-b border-slate-200">
+        <div className="border-b border-(--color-border-subtle)">
           <Tabs tabs={tabs} active={activeTab} onChange={setActiveTab} />
         </div>
 
@@ -113,7 +105,7 @@ export default function InstancePreviewModal({ instance, onClose }: InstancePrev
 
           {activeTab === 1 && (
             <div className="font-mono text-xs">
-              <pre className="bg-slate-50 p-4 rounded overflow-x-auto whitespace-pre-wrap wrap-break-word">
+              <pre className="bg-(--color-surface-alt) p-4 rounded border border-(--color-border-subtle) overflow-x-auto whitespace-pre-wrap wrap-break-word text-(--color-text-primary)">
                 {content}
               </pre>
             </div>
@@ -157,7 +149,7 @@ export default function InstancePreviewModal({ instance, onClose }: InstancePrev
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-slate-200 flex justify-end">
+        <div className="p-6 border-t border-(--color-border-subtle) flex justify-end">
           <Button onClick={onClose}>Cerrar</Button>
         </div>
       </div>

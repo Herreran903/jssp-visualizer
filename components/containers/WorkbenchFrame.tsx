@@ -51,9 +51,9 @@ export default function WorkbenchFrame({ children, title = 'JSSP', nav }: Workbe
           tabIndex={-1}
           className="
             paper-surface relative z-10 overflow-hidden isolate
-            w-[1200px] text-slate-800
-            shadow-2xl ring-1 ring-black/10
-            outline-none focus-visible:outline-2 focus-visible:outline-blue-500/70
+            w-[1200px]
+            elevation-2 ring-1 ring-(--color-border-subtle)
+            outline-none
           "
         >
           <img
@@ -70,12 +70,12 @@ export default function WorkbenchFrame({ children, title = 'JSSP', nav }: Workbe
               z-0
             "
           />
-          <div className="flex items-center justify-between gap-4 border-b border-black/10 px-6 py-4">
-            <h1 className="text-5xl font-extrabold uppercase font-hand">{title}</h1>
+          <div className="flex items-center justify-between gap-4 bg-(--color-surface-alt) border-b border-(--color-border-subtle) px-6 py-4">
+            <h1 className="text-5xl font-extrabold font-hand tracking-tight text-(--color-text-primary)">{title}</h1>
             {nav ? (
-              <nav className="text-xl font-extrabold uppercase font-hand" aria-label="Secciones">
+              <nav className="text-base md:text-lg font-bold font-hand" aria-label="Secciones">
           {nav}
-              </nav>
+                </nav>
             ) : null}
           </div>
 

@@ -5,7 +5,7 @@ export default function Input(props: Props) {
   return (
     <input
       {...props}
-      className={`w-full rounded-none border border-black/30 bg-transparent px-3 py-2 text-sm text-slate-800 placeholder-slate-400 outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus:border-blue-500 shadow-none font-hand normal-case ${props.className || ''}`}
+      className={`w-full rounded-none border border-(--color-border-subtle) bg-(--color-surface) px-3 py-2 text-xl text-(--color-text-primary) placeholder-(--color-text-secondary) outline-none hover:bg-(--overlay-02) disabled:opacity-50 shadow-none font-sans normal-case font-hand ${props.className || ''}`}
     />
   )
 }

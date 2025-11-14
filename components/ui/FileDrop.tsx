@@ -34,10 +34,10 @@ export default function FileDrop({ onFiles, accept = '.dzn', multiple = false }:
   return (
     <div
       {...getRootProps()}
-      className={`rounded-none border-2 border-dashed p-6 text-center transition-colors ${isDragActive ? 'border-black/60 bg-black/5' : 'border-black/30 bg-transparent hover:bg-black/5'}`}
+      className={`rounded-none border-2 border-dashed p-6 text-center transition-colors bg-(--color-surface) text-(--color-text-secondary) ${isDragActive ? 'border-(--color-accent) bg-(--overlay-08)' : 'border-(--color-border-subtle) hover:bg-(--overlay-02)'}`}
     >
       <input {...getInputProps()} />
-      <p className="text-xs text-slate-700 font-hand uppercase tracking-wide">
+      <p className="text-xl font-hand uppercase tracking-wide text-(--color-text-secondary)">
         {multiple ? 'Suelta archivos o haz click para seleccionar' : 'Suelta un archivo o haz click para seleccionar'}
       </p>
     </div>

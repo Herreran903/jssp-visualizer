@@ -45,9 +45,9 @@ export default function InstanceList() {
   }
 
   function getProblemTypeBadge(type: string): string {
-    return type === 'jssp_maint' 
-      ? 'bg-blue-100 text-blue-700' 
-      : 'bg-purple-100 text-purple-700'
+    return type === 'jssp_maint'
+      ? 'badge badge--type-maint'
+      : 'badge badge--type-tard'
   }
 
   return (
@@ -59,35 +59,35 @@ export default function InstanceList() {
         </div>
         
         {loading ? (
-          <div className="text-sm text-slate-700 uppercase">Cargando…</div>
+          <div className="text-sm text-(--color-text-secondary) uppercase">Cargando…</div>
         ) : instances.length === 0 ? (
-          <div className="text-sm text-slate-500 uppercase text-center py-8">
+          <div className="text-sm text-(--color-text-secondary) uppercase text-center py-8">
             No hay instancias. Sube una instancia para comenzar.
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-200">
-                  <th className="text-left py-2 px-2 font-hand uppercase text-xs text-slate-600">Nombre</th>
-                  <th className="text-left py-2 px-2 font-hand uppercase text-xs text-slate-600">Tipo</th>
-                  <th className="text-center py-2 px-2 font-hand uppercase text-xs text-slate-600">Jobs</th>
-                  <th className="text-center py-2 px-2 font-hand uppercase text-xs text-slate-600">Máq.</th>
-                  <th className="text-center py-2 px-2 font-hand uppercase text-xs text-slate-600">Ops</th>
-                  <th className="text-center py-2 px-2 font-hand uppercase text-xs text-slate-600">Estado</th>
-                  <th className="text-center py-2 px-2 font-hand uppercase text-xs text-slate-600">Tamaño</th>
-                  <th className="text-right py-2 px-2 font-hand uppercase text-xs text-slate-600">Acciones</th>
+                <tr className="border-b border-(--color-border-subtle) bg-(--color-surface-alt)">
+                  <th className="text-left py-2 px-2 font-sans uppercase text-xs text-(--color-text-secondary)">Nombre</th>
+                  <th className="text-left py-2 px-2 font-sans uppercase text-xs text-(--color-text-secondary)">Tipo</th>
+                  <th className="text-center py-2 px-2 font-sans uppercase text-xs text-(--color-text-secondary)">Jobs</th>
+                  <th className="text-center py-2 px-2 font-sans uppercase text-xs text-(--color-text-secondary)">Máq.</th>
+                  <th className="text-center py-2 px-2 font-sans uppercase text-xs text-(--color-text-secondary)">Ops</th>
+                  <th className="text-center py-2 px-2 font-sans uppercase text-xs text-(--color-text-secondary)">Estado</th>
+                  <th className="text-center py-2 px-2 font-sans uppercase text-xs text-(--color-text-secondary)">Tamaño</th>
+                  <th className="text-right py-2 px-2 font-sans uppercase text-xs text-(--color-text-secondary)">Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {instances.map((inst) => (
-                  <tr key={inst.id} className="border-b border-slate-100 hover:bg-slate-50">
+                  <tr key={inst.id} className="border-b border-(--color-border-subtle) hover:bg-(--overlay-02)">
                     <td className="py-2 px-2 font-hand">
                       <div className="font-medium">{inst.name}</div>
-                      <div className="text-xs text-slate-500 font-mono">{inst.id}</div>
+                      <div className="text-xs text-(--color-text-secondary) font-mono">{inst.id}</div>
                     </td>
                     <td className="py-2 px-2">
-                      <span className={`px-2 py-1 rounded text-xs font-hand uppercase ${getProblemTypeBadge(inst.problemType)}`}>
+                      <span className={`font-sans ${getProblemTypeBadge(inst.problemType)}`}>
                         {getProblemTypeLabel(inst.problemType)}
                       </span>
                     </td>
@@ -95,10 +95,10 @@ export default function InstanceList() {
                     <td className="py-2 px-2 text-center font-mono">{inst.machines || '—'}</td>
                     <td className="py-2 px-2 text-center font-mono">{inst.operations || '—'}</td>
                     <td className="py-2 px-2 text-center">
-                      <span className={`px-2 py-1 rounded text-xs font-hand uppercase ${
-                        inst.validated 
-                          ? 'bg-green-100 text-green-700' 
-                          : 'bg-red-100 text-red-700'
+                      <span className={`badge font-sans ${
+                        inst.validated
+                          ? 'badge--success'
+                          : 'badge--danger'
                       }`}>
                         {inst.validated ? '✓' : '✗'}
                       </span>
@@ -110,14 +110,14 @@ export default function InstanceList() {
                       <div className="flex gap-1 justify-end">
                         <button
                           onClick={() => handlePreview(inst.id)}
-                          className="p-2 text-xs hover:bg-slate-200 rounded font-hand uppercase transition-colors"
+                          className="p-2 text-xs hover:bg-(--overlay-08) rounded font-sans transition-colors text-(--color-text-secondary) focus-visible:ring-2 focus-visible:ring-(--color-accent)"
                           title="Vista previa"
                         >
                           <Eye className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleExport(inst.id)}
-                          className="p-2 text-xs hover:bg-slate-200 rounded font-hand uppercase transition-colors"
+                          className="p-2 text-xs hover:bg-(--overlay-08) rounded font-sans transition-colors text-(--color-text-secondary) focus-visible:ring-2 focus-visible:ring-(--color-accent)"
                           title="Exportar"
                         >
                           <Download className="w-4 h-4" />
@@ -125,7 +125,7 @@ export default function InstanceList() {
                         <button
                           onClick={() => handleDelete(inst.id)}
                           disabled={deletingId === inst.id}
-                          className="p-2 text-xs hover:bg-red-100 rounded font-hand uppercase text-red-600 disabled:opacity-50 transition-colors"
+                          className="p-2 text-xs hover:bg-(--overlay-08) rounded font-sans transition-colors text-(--color-danger) disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-(--color-accent)"
                           title="Eliminar"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -140,7 +140,7 @@ export default function InstanceList() {
         )}
 
         {instances.length > 0 && (
-          <div className="pt-3 border-t border-slate-200 text-xs text-slate-500 font-hand uppercase">
+          <div className="pt-3 border-t border-(--color-border-subtle) text-xs text-(--color-text-secondary) font-sans uppercase">
             Total: {instances.length} instancia{instances.length !== 1 ? 's' : ''}
           </div>
         )}

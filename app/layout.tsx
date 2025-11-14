@@ -27,15 +27,30 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const isMock = process.env.USE_MOCKS === 'true'
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? ''
   return (
-    <html lang="es" data-mock={isMock ? 'true' : 'false'} data-backend={backendUrl}>
+    <html lang="es" data-theme="light" data-mock={isMock ? 'true' : 'false'} data-backend={backendUrl}>
       <body className={`${hand.variable} ${rockSalt.variable} font-sans`}>
         <WorkbenchFrame
           title="JSSP"
           nav={
             <nav className="flex gap-3" aria-label="Secciones">
-              <Link href="/instances"  className="hover:underline underline-offset-4">Instancias</Link>
-              <Link href="/configure" className="hover:underline underline-offset-4">Configurar</Link>
-              <Link href="/run"       className="hover:underline underline-offset-4">Ejecutar</Link>
+              <Link
+                href="/instances"
+                className="text-(--color-text-secondary) hover:text-(--color-accent) hover:underline underline-offset-4 transition-colors"
+              >
+                INSTANCIAS
+              </Link>
+              <Link
+                href="/configure"
+                className="text-(--color-text-secondary) hover:text-(--color-accent) hover:underline underline-offset-4 transition-colors"
+              >
+                CONFIGURAR
+              </Link>
+              <Link
+                href="/run"
+                className="text-(--color-text-secondary) hover:text-(--color-accent) hover:underline underline-offset-4 transition-colors"
+              >
+                EJECUTAR
+              </Link>
             </nav>
       
           }

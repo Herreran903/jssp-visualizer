@@ -1,3 +1,274 @@
+/* Enhanced Gantt Chart Styles */
+.gantt-enhanced {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: var(--color-surface);
+  border-radius: 0;
+  overflow: hidden;
+  box-shadow: none;
+  border: 1px dashed var(--color-border-subtle);
+  padding: 0;
+}
+
+/* Header with time axis */
+.gantt-header {
+  display: flex;
+  background: var(--color-surface-alt);
+  border-bottom: 1px dashed var(--color-border-subtle);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.gantt-machine-label-header {
+  width: 180px;
+  min-width: 180px;
+  padding: 12px 16px;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-right: 1px dashed var(--color-border-subtle);
+  display: flex;
+  align-items: center;
+}
+
+.gantt-timeline-header {
+  flex: 1;
+  position: relative;
+  min-width: 800px;
+  height: 48px;
+  padding-right: 80px;
+}
+
+.gantt-grid-overlay {
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(
+      to right,
+      var(--color-border-subtle) 0 1px,
+      transparent 1px 10%
+    );
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.gantt-tick {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: transparent;
+  border-left: 1px dashed var(--color-border-subtle);
+  transform: translateX(-1px);
+}
+
+.gantt-tick-label {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  background: var(--color-surface-alt);
+  padding: 2px 8px;
+  border-radius: 0;
+  white-space: nowrap;
+  border: none;
+  min-width: 24px;
+  text-align: center;
+}
+
+.gantt-tick:last-child .gantt-tick-label {
+  left: auto;
+  right: 0;
+  transform: translateX(0);
+}
+
+/* Body with machine rows */
+.gantt-body {
+  display: flex;
+  flex-direction: column;
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 600px;
+}
+
+.gantt-body::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.gantt-body::-webkit-scrollbar-track {
+  background: var(--color-surface-alt);
+}
+
+.gantt-body::-webkit-scrollbar-thumb {
+  background: var(--color-border-subtle);
+  border-radius: 4px;
+}
+
+.gantt-body::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary);
+}
+
+.gantt-machine-row {
+  display: flex;
+  border-bottom: 1px solid var(--color-border-subtle);
+  transition: background-color 0.15s ease;
+}
+
+.gantt-machine-row:hover {
+  background: var(--overlay-02);
+}
+
+.gantt-machine-row:last-child {
+  border-bottom: none;
+}
+
+.gantt-machine-label {
+  width: 180px;
+  min-width: 180px;
+  padding: 16px;
+  border-right: 1px dashed var(--color-border-subtle);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  background: var(--color-surface);
+  position: sticky;
+  left: 0;
+  z-index: 5;
+}
+
+.gantt-machine-name {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--color-text-primary);
+  font-family: var(--font-hand), sans-serif;
+}
+
+.gantt-machine-id {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  font-family: monospace;
+  opacity: 0.7;
+}
+
+.gantt-timeline {
+  flex: 1;
+  position: relative;
+  min-width: 800px;
+  min-height: 72px;
+  padding: 12px 80px 12px 0;
+}
+
+/* Operation bars */
+.gantt-operation {
+  position: absolute;
+  height: 48px;
+  top: 12px;
+  border-radius: 0;
+  border: 1px solid;
+  box-shadow: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 0 12px;
+  overflow: hidden;
+  min-width: 60px;
+}
+
+.gantt-operation:hover {
+  transform: translateY(0);
+  box-shadow: none;
+  z-index: 10;
+  filter: brightness(1.15);
+  border-width: 2px;
+}
+
+.gantt-operation-label {
+  font-size: 13px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.95);
+  font-family: var(--font-hand), sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  line-height: 1;
+}
+
+.gantt-operation-time {
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.75);
+  margin-top: 2px;
+  font-family: monospace;
+}
+
+/* Legend */
+.gantt-legend {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  background: var(--color-surface-alt);
+  border-top: 1px solid var(--color-border-subtle);
+  flex-wrap: wrap;
+}
+
+.gantt-legend-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.gantt-legend-items {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.gantt-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  background: var(--color-surface);
+  border-radius: 0;
+  border: 1px solid var(--color-border-subtle);
+}
+
+.gantt-legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 0;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  box-shadow: none;
+}
+
+.gantt-legend-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  font-family: var(--font-hand), sans-serif;
+}
+
+/* Dark theme adjustments */
+html[data-theme="dark"] .gantt-legend-color {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Legacy gantt styles (kept for backwards compatibility) */
 .gantt {
   position: relative;
   overflow-x: auto;
@@ -28,7 +299,7 @@
   height: 24px;
   top: 6px;
   border-radius: 0;
-  background-color: #334155; /* slate-700 ink */
+  background-color: #334155;
   box-shadow: none;
   border: 1px solid rgba(0,0,0,0.25);
 }
