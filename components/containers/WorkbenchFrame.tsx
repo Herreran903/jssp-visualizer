@@ -79,7 +79,7 @@ export default function WorkbenchFrame({ children, title = 'JSSP', nav }: Workbe
             ) : null}
           </div>
 
-          <div className="px-6 py-6 sm:px-8 sm:py-8">{children}</div>
+          <div className="px-6 py-6 sm:px-8 sm:py-8 overflow-y-auto max-h-[calc(100vh-200px)] custom-scrollbar ">{children}</div>
         </div>
       </div>
     </div>

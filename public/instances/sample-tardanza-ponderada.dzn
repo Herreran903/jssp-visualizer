@@ -1,0 +1,14 @@
+jobs = 3;
+tasks = 3;
+
+d = array2d(1..jobs, 1..tasks,
+  [
+    3, 2, 2,
+    2, 1, 4,
+    4, 3, 1
+  ]
+);
+
+weights = [ 1, 2, 3 ];
+
+due_dates = [ 6, 7, 8 ];

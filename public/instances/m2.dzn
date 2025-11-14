@@ -1,0 +1,18 @@
+% ---------- jobshop_tardanza_example.dzn ----------
+jobs = 3;
+tasks = 3;
+
+% d[i,j]: duración de la tarea j del job i
+d = array2d(1..jobs, 1..tasks,
+  [
+    3, 2, 2,   % Job 1
+    2, 1, 4,   % Job 2
+    4, 3, 1    % Job 3
+  ]
+);
+
+% weights[j]: peso de cada job en la tardanza ponderada
+weights = [ 1, 2, 3 ];
+
+% due_dates[j]: fecha de entrega objetivo de cada job
+due_dates = [ 6, 7, 8 ];

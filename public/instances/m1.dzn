@@ -1,0 +1,42 @@
+% ---------- jobshop_mantenimiento_example.dzn ----------
+JOBS = 3;
+TASKS = 3;
+
+% PROC_TIME[i,j]: duración de la tarea j del job i
+PROC_TIME = array2d(1..JOBS, 1..TASKS,
+  [
+    3, 2, 2,   % Job 1
+    2, 1, 4,   % Job 2
+    4, 3, 1    % Job 3
+  ]
+);
+
+% Una ventana de mantenimiento por "máquina" (índice de TASK)
+MAX_MAINT_WINDOWS = 1;
+
+% MAINT_START[m,k] y MAINT_END[m,k] para cada máquina m y ventana k
+% Aquí solo usamos k = 1
+MAINT_START = array2d(1..TASKS, 1..MAX_MAINT_WINDOWS,
+  [
+    4,   % Máquina (tarea) 1
+    7,   % Máquina (tarea) 2
+    3    % Máquina (tarea) 3
+  ]
+);
+
+MAINT_END = array2d(1..TASKS, 1..MAX_MAINT_WINDOWS,
+  [
+    6,   % Máquina 1: mantenimiento [4,6)
+    9,   % Máquina 2: mantenimiento [7,9)
+    5    % Máquina 3: mantenimiento [3,5)
+  ]
+);
+
+% MAINT_ACTIVE[m,k]: si la ventana está activa o no
+MAINT_ACTIVE = array2d(1..TASKS, 1..MAX_MAINT_WINDOWS,
+  [
+    true,   % Máquina 1: ventana activa
+    true,   % Máquina 2: ventana activa
+    false   % Máquina 3: ventana inactiva (se ignora)
+  ]
+);
