@@ -1,4 +1,3 @@
-// hooks/useModels.ts
 "use client"
 import { useCallback, useEffect, useState } from "react"
 import type { Model } from "../types/domain"

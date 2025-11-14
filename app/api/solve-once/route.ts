@@ -1,10 +1,3 @@
-/**
- * app/api/solve-once/route.ts
- * Single-shot execution endpoint:
- * - Accepts multipart (FormData) or JSON body
- * - Returns a complete SolutionEnvelope with meta for immediate visualization/export
- * - No persistence server-side; request -> response only
- */
 import { NextResponse } from "next/server"
 import type { SolverConfig } from "../../../types/domain"
 import { createMockSolution } from "../../../lib/mock-solution"
@@ -28,7 +21,7 @@ function buildMeta(input: {
     jobs: jobsSet.size || undefined,
     machines: machines.length || undefined,
     operations: operations.length || undefined,
-    elapsedMs: 1234, // mock/default; real backend may override in future
+    elapsedMs: 1234,
     timeLimit: timeLimitMs || undefined,
     seed: 0,
     strategy: input.solverConfig?.searchHeuristic,
@@ -41,12 +34,10 @@ function buildMeta(input: {
 export async function POST(req: Request) {
   const contentType = req.headers.get("content-type") || ""
   
-  // Read environment variables
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || ""
   const useMocks = process.env.USE_MOCKS === "true"
 
   if (useMocks) {
-    // Mock mode - return realistic test data
     let instanceId = ""
     let instanceName = ""
     let solverConfig: SolverConfig = {
@@ -58,7 +49,6 @@ export async function POST(req: Request) {
       maxSolutions: 1,
     }
 
-    // Parse request to extract config
     if (contentType.includes("multipart/form-data")) {
       const form = await req.formData()
       instanceId = (form.get("instanceId") as string) || ""
@@ -74,7 +64,6 @@ export async function POST(req: Request) {
       solverConfig = body.solverConfig ?? solverConfig
     }
 
-    // Generate mock solution with config
     const mockResponse = createMockSolution({
       instanceId,
       instanceName,
@@ -89,7 +78,6 @@ export async function POST(req: Request) {
     return NextResponse.json(mockResponse)
   }
 
-  // Real backend mode - proxy to actual backend
   if (contentType.includes("multipart/form-data")) {
     const form = await req.formData()
     const instanceId = (form.get("instanceId") as string) || undefined

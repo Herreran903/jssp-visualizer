@@ -1,4 +1,3 @@
-// app/(features)/configure/page.tsx
 "use client"
 import SolverConfigurator from "../../../components/containers/SolverConfigurator"
 

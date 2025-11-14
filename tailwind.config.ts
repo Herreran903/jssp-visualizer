@@ -1,4 +1,3 @@
-// tailwind.config.ts
 import type { Config } from 'tailwindcss'
 
 const config: Config = {
@@ -15,6 +14,15 @@ const config: Config = {
         sans: ['var(--font-hand)', 'ui-sans-serif', 'system-ui', 'Segoe UI', 'Roboto', 'Arial'],
         hand: ['var(--font-hand)'],
         title: ['var(--font-title)'],
+      },
+      fontSize: {
+        xs: ['0.875rem', { lineHeight: '1.4' }],
+        sm: ['1rem', { lineHeight: '1.5' }],
+        base: ['1.0625rem', { lineHeight: '1.6' }],
+        md: ['1.125rem', { lineHeight: '1.55' }],
+        lg: ['1.25rem', { lineHeight: '1.5' }],
+        xl: ['1.5rem', { lineHeight: '1.3' }],
+        '2xl': ['1.75rem', { lineHeight: '1.25' }],
       },
     },
   },

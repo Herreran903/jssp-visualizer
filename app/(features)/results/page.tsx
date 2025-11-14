@@ -1,4 +1,3 @@
-// app/(features)/results/page.tsx
 "use client"
 import ResultsDashboard from "../../../components/containers/ResultsDashboard"
 

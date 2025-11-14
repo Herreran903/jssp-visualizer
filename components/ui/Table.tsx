@@ -10,11 +10,11 @@ export interface Column<T> {
 export default function Table<T extends object>({ data, columns }: { data: T[]; columns: Column<T>[] }) {
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-sm text-(--color-text-primary) font-sans">
-        <thead className="text-left text-(--color-text-secondary) border-b border-(--color-border-subtle) bg-(--color-surface-alt)">
+      <table className="w-full text-base md:text-md text-(--color-text-primary) font-hand">
+        <thead className="text-left text-(--color-text-secondary) border-b border-(--color-border-subtle) bg-(--color-surface-alt) text-md font-hand tracking-wide">
           <tr>
             {columns.map((c) => (
-              <th key={String(c.key)} className="px-3 py-2 font-semibold tracking-normal">{c.header}</th>
+              <th key={String(c.key)} className="px-3 py-2 font-extrabold tracking-wide">{c.header}</th>
             ))}
           </tr>
         </thead>

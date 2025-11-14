@@ -7,7 +7,7 @@ export default function Tabs({ tabs, active, onChange }: { tabs: string[]; activ
         <button
           key={t}
           onClick={() => onChange(i)}
-          className={`px-3 py-2 text-sm font-sans normal-case rounded-none shadow-none outline-none focus-visible:ring-2 focus-visible:ring-(--color-accent) transition-colors ${
+          className={`px-3 py-2 text-base font-hand uppercase rounded-none shadow-none outline-none focus-visible:ring-2 focus-visible:ring-(--color-accent) transition-colors ${
             i === active
               ? "border-b-2 border-(--color-accent) text-(--color-text-primary) font-semibold"
               : "border-b-2 border-transparent text-(--color-text-secondary) hover:border-(--color-accent)/40 hover:bg-(--overlay-04)"

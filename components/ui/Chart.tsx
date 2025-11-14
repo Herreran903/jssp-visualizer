@@ -29,13 +29,13 @@ export default function Chart({ data, kind = "bar" }: { data: any[]; kind?: "bar
             <XAxis
               dataKey="name"
               stroke="var(--color-text-secondary)"
-              tick={{ fill: 'var(--color-text-secondary)', fontSize: 12, fontWeight: 600 }}
+              tick={{ fill: 'var(--color-text-secondary)', fontSize: 13, fontWeight: 700, fontFamily: 'var(--font-hand)' }}
               tickLine={false}
               axisLine={{ stroke: 'var(--color-border-subtle)', strokeWidth: 1, strokeDasharray: '3 3' }}
             />
             <YAxis
               stroke="var(--color-text-secondary)"
-              tick={{ fill: 'var(--color-text-secondary)', fontSize: 12, fontWeight: 600 }}
+              tick={{ fill: 'var(--color-text-secondary)', fontSize: 13, fontWeight: 700, fontFamily: 'var(--font-hand)' }}
               tickLine={false}
               axisLine={{ stroke: 'var(--color-border-subtle)', strokeWidth: 1, strokeDasharray: '3 3' }}
             />
@@ -66,13 +66,13 @@ export default function Chart({ data, kind = "bar" }: { data: any[]; kind?: "bar
           <XAxis
             dataKey="name"
             stroke="var(--color-text-secondary)"
-            tick={{ fill: 'var(--color-text-secondary)', fontSize: 12, fontWeight: 600 }}
+            tick={{ fill: 'var(--color-text-secondary)', fontSize: 13, fontWeight: 700, fontFamily: 'var(--font-hand)' }}
             tickLine={false}
             axisLine={{ stroke: 'var(--color-border-subtle)', strokeWidth: 1, strokeDasharray: '3 3' }}
           />
           <YAxis
             stroke="var(--color-text-secondary)"
-            tick={{ fill: 'var(--color-text-secondary)', fontSize: 12, fontWeight: 600 }}
+            tick={{ fill: 'var(--color-text-secondary)', fontSize: 13, fontWeight: 700, fontFamily: 'var(--font-hand)' }}
             tickLine={false}
             axisLine={{ stroke: 'var(--color-border-subtle)', strokeWidth: 1, strokeDasharray: '3 3' }}
           />

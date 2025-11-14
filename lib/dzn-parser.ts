@@ -1,4 +1,3 @@
-// lib/dzn-parser.ts
 import type { ProblemType, InstanceMetadata } from '../types/domain'
 
 export interface DZNParseResult {
@@ -7,9 +6,6 @@ export interface DZNParseResult {
   warnings: string[]
 }
 
-/**
- * Parse DZN file content and extract metadata
- */
 export function parseDZN(content: string, problemType: ProblemType): DZNParseResult {
   const errors: string[] = []
   const warnings: string[] = []
@@ -37,24 +33,12 @@ export function parseDZN(content: string, problemType: ProblemType): DZNParseRes
   return { metadata, errors, warnings }
 }
 
-/**
- * Parse JSSP with Maintenance format
- * Expected format:
- * JOBS = 3;
- * TASKS = 3;
- * PROC_TIME = array2d(1..JOBS, 1..TASKS, [...]);
- * MAX_MAINT_WINDOWS = 1;
- * MAINT_START = array2d(1..TASKS, 1..MAX_MAINT_WINDOWS, [...]);
- * MAINT_END = array2d(1..TASKS, 1..MAX_MAINT_WINDOWS, [...]);
- * MAINT_ACTIVE = array2d(1..TASKS, 1..MAX_MAINT_WINDOWS, [...]);
- */
 function parseJSSPMaint(
   content: string,
   metadata: Partial<InstanceMetadata>,
   errors: string[],
   warnings: string[]
 ): void {
-  // Extract JOBS
   const jobsMatch = content.match(/JOBS\s*=\s*(\d+)/i)
   if (jobsMatch) {
     metadata.jobs = parseInt(jobsMatch[1], 10)
@@ -62,7 +46,6 @@ function parseJSSPMaint(
     errors.push('Missing required parameter: JOBS')
   }
 
-  // Extract TASKS
   const tasksMatch = content.match(/TASKS\s*=\s*(\d+)/i)
   if (tasksMatch) {
     metadata.machines = parseInt(tasksMatch[1], 10)
@@ -70,22 +53,18 @@ function parseJSSPMaint(
     errors.push('Missing required parameter: TASKS')
   }
 
-  // Extract PROC_TIME array2d
   const procTimeMatch = content.match(/PROC_TIME\s*=\s*array2d\([^,]+,[^,]+,\s*\[([^\]]+)\]/i)
   if (!procTimeMatch) {
     errors.push('Missing required parameter: PROC_TIME (must be array2d format)')
   } else {
-    // Count operations from PROC_TIME
     const times = procTimeMatch[1].split(',').map(s => s.trim()).filter(s => s && !/^%/.test(s))
     metadata.operations = times.length
     
-    // Validate that all times are positive integers
     const invalidTimes = times.filter(t => !/^\d+$/.test(t) || parseInt(t, 10) <= 0)
     if (invalidTimes.length > 0) {
       errors.push(`Invalid processing times found: ${invalidTimes.slice(0, 3).join(', ')}${invalidTimes.length > 3 ? '...' : ''}`)
     }
 
-    // Cross-validate dimensions
     if (metadata.jobs && metadata.machines && metadata.operations) {
       const expectedOps = metadata.jobs * metadata.machines
       if (metadata.operations !== expectedOps) {
@@ -94,19 +73,16 @@ function parseJSSPMaint(
     }
   }
 
-  // Check for MAX_MAINT_WINDOWS
   const maxMaintMatch = content.match(/MAX_MAINT_WINDOWS\s*=\s*(\d+)/i)
   if (!maxMaintMatch) {
     warnings.push('MAX_MAINT_WINDOWS not defined (optional for jssp_maint)')
   }
 
-  // Check for MAINT_START
   const maintStartMatch = content.match(/MAINT_START\s*=\s*array2d/i)
   if (!maintStartMatch) {
     warnings.push('MAINT_START not defined (optional for jssp_maint)')
   }
 
-  // Check for MAINT_END
   const maintEndMatch = content.match(/MAINT_END\s*=\s*array2d/i)
   if (!maintEndMatch) {
     warnings.push('MAINT_END not defined (optional for jssp_maint)')
@@ -119,22 +95,12 @@ function parseJSSPMaint(
   }
 }
 
-/**
- * Parse Weighted Tardiness format
- * Expected format:
- * jobs = 3;
- * tasks = 3;
- * d = array2d(1..jobs, 1..tasks, [...]);
- * weights = [...];
- * due_dates = [...];
- */
 function parseTardanzaPonderada(
   content: string,
   metadata: Partial<InstanceMetadata>,
   errors: string[],
   warnings: string[]
 ): void {
-  // Extract jobs (lowercase)
   const jobsMatch = content.match(/jobs\s*=\s*(\d+)/i)
   if (jobsMatch) {
     metadata.jobs = parseInt(jobsMatch[1], 10)
@@ -142,7 +108,6 @@ function parseTardanzaPonderada(
     errors.push('Missing required parameter: jobs')
   }
 
-  // Extract tasks (lowercase)
   const tasksMatch = content.match(/tasks\s*=\s*(\d+)/i)
   if (tasksMatch) {
     metadata.machines = parseInt(tasksMatch[1], 10)
@@ -150,22 +115,18 @@ function parseTardanzaPonderada(
     errors.push('Missing required parameter: tasks')
   }
 
-  // Extract d (durations) array2d
   const dMatch = content.match(/d\s*=\s*array2d\([^,]+,[^,]+,\s*\[([^\]]+)\]/i)
   if (!dMatch) {
     errors.push('Missing required parameter: d (must be array2d format)')
   } else {
-    // Count operations from d
     const durations = dMatch[1].split(',').map(s => s.trim()).filter(s => s && !/^%/.test(s))
     metadata.operations = durations.length
     
-    // Validate that all durations are positive integers
     const invalidDurations = durations.filter(t => !/^\d+$/.test(t) || parseInt(t, 10) <= 0)
     if (invalidDurations.length > 0) {
       errors.push(`Invalid durations found: ${invalidDurations.slice(0, 3).join(', ')}${invalidDurations.length > 3 ? '...' : ''}`)
     }
 
-    // Cross-validate dimensions
     if (metadata.jobs && metadata.machines && metadata.operations) {
       const expectedOps = metadata.jobs * metadata.machines
       if (metadata.operations !== expectedOps) {
@@ -174,7 +135,6 @@ function parseTardanzaPonderada(
     }
   }
 
-  // Check for weights
   const weightsMatch = content.match(/weights\s*=\s*\[([^\]]+)\]/i)
   if (!weightsMatch) {
     errors.push('Missing required parameter: weights')
@@ -185,7 +145,6 @@ function parseTardanzaPonderada(
     }
   }
 
-  // Check for due_dates
   const dueDatesMatch = content.match(/due_dates\s*=\s*\[([^\]]+)\]/i)
   if (!dueDatesMatch) {
     errors.push('Missing required parameter: due_dates')
@@ -197,16 +156,10 @@ function parseTardanzaPonderada(
   }
 }
 
-/**
- * Validate DZN file content
- */
 export function validateDZN(content: string, problemType: ProblemType): DZNParseResult {
   return parseDZN(content, problemType)
 }
 
-/**
- * Extract instance name from file name
- */
 export function extractInstanceName(fileName: string): string {
   return fileName.replace(/\.dzn$/i, '').replace(/[^a-zA-Z0-9_-]/g, '_')
 }

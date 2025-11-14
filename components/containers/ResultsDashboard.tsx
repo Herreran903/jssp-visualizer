@@ -1,4 +1,3 @@
-/* components/containers/ResultsDashboard.tsx */
 "use client"
 import Card from "../ui/Card"
 import Button from "../ui/Button"
@@ -13,16 +12,14 @@ export default function ResultsDashboard() {
   const router = useRouter()
   const { lastRun, prevRun } = useRunStore()
   const [compare, setCompare] = useState(false)
-  const [view, setView] = useState<"A" | "B">("A") // A = lastRun, B = prevRun
+  const [view, setView] = useState<"A" | "B">("A")
 
-  // Guard: if no data in memory, redirect to /run
   useEffect(() => {
     if (!lastRun) router.replace("/run")
   }, [lastRun, router])
 
   const current = view === "A" ? lastRun : prevRun
 
-  // Summaries and derived metrics
   const summarize = (env: any | null) => {
     if (!env?.solution) return null
     const s = env.solution
@@ -30,7 +27,6 @@ export default function ResultsDashboard() {
     const ops = s.operations || []
     const machines = s.machines || []
     const stats = s.stats || {}
-    // per-machine utilization = sum(duration)/makespan
     const durationsByMachine = new Map<string, number>()
     for (const op of ops) {
       durationsByMachine.set(op.machineId, (durationsByMachine.get(op.machineId) || 0) + (op.duration || 0))
@@ -55,7 +51,6 @@ export default function ResultsDashboard() {
   const sumB = useMemo(() => summarize(prevRun), [prevRun])
   const canCompare = Boolean(prevRun?.solution)
 
-  // Chart data from current
   const chartData = useMemo(() => {
     const stats = current?.solution?.stats || {}
     return Object.keys(stats).map((k) => ({ name: k, value: stats[k] }))
@@ -80,7 +75,6 @@ export default function ResultsDashboard() {
     URL.revokeObjectURL(url)
   }
 
-  // Metadata panel data (from lastRun.meta)
   const meta = lastRun?.meta || {}
   const instanceLabel =
     meta.instanceName || meta.instanceId || "—"
@@ -91,7 +85,6 @@ export default function ResultsDashboard() {
 
   return (
     <div className="space-y-6 font-hand uppercase text-slate-800">
-      {/* Panel de metadatos */}
       {lastRun?.solution && (
         <Card className="space-y-3 font-hand">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -135,8 +128,6 @@ export default function ResultsDashboard() {
           </div>
         </Card>
       )}
-
-      {/* Comparador simple */}
       <Card className="space-y-3 font-hand">
         <div className="flex items-center justify-between">
           <div className="text-xl font-bold uppercase">Resultados</div>
@@ -158,7 +149,6 @@ export default function ResultsDashboard() {
             </div>
           </div>
         </div>
-
         {compare && lastRun?.solution && (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -212,8 +202,6 @@ export default function ResultsDashboard() {
           </div>
         )}
       </Card>
-
-      {/* Gantt con switch A/B (una sola vista) */}
       {current?.solution && (
         <>
           <Card className="font-hand">
@@ -224,15 +212,11 @@ export default function ResultsDashboard() {
               operations={current.solution.operations}
             />
           </Card>
-
-          {/* Estadísticas rápidas */}
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
             <Stat label="Makespan" value={current.solution.makespan} />
             <Stat label="Ops" value={current.solution.operations.length} />
             <Stat label="Máquinas" value={current.solution.machines.length} />
           </div>
-
-          {/* Métricas detalladas */}
           <Card className="font-hand">
             <div className="mb-3 text-sm text-slate-700 uppercase">Métricas</div>
             <Chart data={chartData} kind="bar" />

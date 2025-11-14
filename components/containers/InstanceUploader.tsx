@@ -1,4 +1,3 @@
-// components/containers/InstanceUploader.tsx
 'use client'
 import { useState } from 'react'
 import { Upload, CheckCircle2, XCircle, AlertTriangle } from 'lucide-react'
@@ -28,13 +27,10 @@ export default function InstanceUploader() {
     setValidationStatus(null)
     setUploadSuccess(null)
 
-    // Check if it's a .dzn file or import files
     if (selectedFile.name.endsWith('.dzn')) {
-      // Check if there's a .meta.json file in the selection
       const metaFile = files.find(f => f.name.endsWith('.meta.json'))
       
       if (metaFile) {
-        // Import mode
         try {
           const id = await importInstance(selectedFile, metaFile)
           setUploadSuccess(`Instancia importada exitosamente! ID: ${id}`)
@@ -48,8 +44,6 @@ export default function InstanceUploader() {
         }
         return
       }
-
-      // Upload mode - validate
       try {
         const content = await selectedFile.text()
         const { parseDZN } = await import('../../lib/dzn-parser')
@@ -100,9 +94,7 @@ export default function InstanceUploader() {
         <Upload className="w-5 h-5" />
         <div className="text-xl font-bold uppercase">Subir / Importar Instancia</div>
       </div>
-      
-      {/* Problem Type Selector */}
-      <div>
+            <div>
         <div className="mb-1 text-xs text-slate-700 font-hand uppercase">Tipo de Problema</div>
         <Select 
           value={problemType} 
@@ -113,8 +105,6 @@ export default function InstanceUploader() {
           <option value="tardanza_ponderada">Tardanza Ponderada</option>
         </Select>
       </div>
-
-      {/* Single File Upload/Import Area */}
       <div className="space-y-2">
         <div className="text-sm text-slate-700 font-hand uppercase">
           Archivo DZN {file && <span className="text-slate-500">(arrastra .meta.json para importar)</span>}
@@ -129,8 +119,6 @@ export default function InstanceUploader() {
                 {loading ? 'Subiendo...' : 'Subir'}
               </Button>
             </div>
-
-            {/* Validation Status */}
             {validationStatus && (
               <div className="p-3 rounded border text-sm font-hand">
                 {validationStatus.validated ? (

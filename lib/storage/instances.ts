@@ -5,9 +5,6 @@ import type { InstanceMetadata, LocalInstance } from '../../types/domain'
 const INDEX_KEY = 'jssp:instances:index'
 const DB_PREFIX = 'instance:'
 
-/**
- * Get the localStorage index of all instances
- */
 function getIndex(): InstanceMetadata[] {
   if (typeof window === 'undefined') return []
   try {
@@ -18,9 +15,6 @@ function getIndex(): InstanceMetadata[] {
   }
 }
 
-/**
- * Update the localStorage index
- */
 function updateIndex(instances: InstanceMetadata[]): void {
   if (typeof window === 'undefined') return
   try {
@@ -30,16 +24,10 @@ function updateIndex(instances: InstanceMetadata[]): void {
   }
 }
 
-/**
- * Generate a unique instance ID
- */
 function generateId(): string {
   return `inst-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
 }
 
-/**
- * Save an instance to IndexedDB and update the index
- */
 export async function saveInstance(
   content: string,
   metadata: Omit<InstanceMetadata, 'id' | 'createdAt'>
@@ -51,7 +39,6 @@ export async function saveInstance(
     createdAt: new Date().toISOString(),
   }
 
-  // Store in IndexedDB
   const instance: LocalInstance = {
     metadata: fullMetadata,
     content,
@@ -59,7 +46,6 @@ export async function saveInstance(
   
   await set(`${DB_PREFIX}${id}`, instance)
 
-  // Update localStorage index
   const index = getIndex()
   index.push(fullMetadata)
   updateIndex(index)
@@ -67,9 +53,6 @@ export async function saveInstance(
   return id
 }
 
-/**
- * Get an instance by ID from IndexedDB
- */
 export async function getInstance(id: string): Promise<LocalInstance | null> {
   try {
     const instance = await get<LocalInstance>(`${DB_PREFIX}${id}`)
@@ -80,37 +63,23 @@ export async function getInstance(id: string): Promise<LocalInstance | null> {
   }
 }
 
-/**
- * Get instance content only (for running solver)
- */
 export async function getInstanceContent(id: string): Promise<string | null> {
   const instance = await getInstance(id)
   return instance?.content || null
 }
 
-/**
- * List all instances from localStorage index
- */
 export function listInstances(): InstanceMetadata[] {
   return getIndex()
 }
 
-/**
- * Delete an instance from IndexedDB and update the index
- */
 export async function deleteInstance(id: string): Promise<void> {
-  // Remove from IndexedDB
   await del(`${DB_PREFIX}${id}`)
 
-  // Update localStorage index
   const index = getIndex()
   const filtered = index.filter(inst => inst.id !== id)
   updateIndex(filtered)
 }
 
-/**
- * Update instance metadata (without changing content)
- */
 export async function updateInstanceMetadata(
   id: string,
   updates: Partial<InstanceMetadata>
@@ -120,21 +89,18 @@ export async function updateInstanceMetadata(
     throw new Error(`Instance ${id} not found`)
   }
 
-  // Update metadata
   const updatedMetadata: InstanceMetadata = {
     ...instance.metadata,
     ...updates,
-    id, // Ensure ID doesn't change
+    id,
   }
 
-  // Save back to IndexedDB
   const updatedInstance: LocalInstance = {
     ...instance,
     metadata: updatedMetadata,
   }
   await set(`${DB_PREFIX}${id}`, updatedInstance)
 
-  // Update localStorage index
   const index = getIndex()
   const indexItem = index.find(inst => inst.id === id)
   if (indexItem) {
@@ -143,9 +109,6 @@ export async function updateInstanceMetadata(
   }
 }
 
-/**
- * Clear all instances (for testing/reset)
- */
 export async function clearAllInstances(): Promise<void> {
   const allKeys = await keys()
   const instanceKeys = allKeys.filter(key => 
@@ -156,9 +119,6 @@ export async function clearAllInstances(): Promise<void> {
   updateIndex([])
 }
 
-/**
- * Export instance as downloadable files
- */
 export async function exportInstance(id: string): Promise<{ dzn: Blob; meta: Blob; name: string }> {
   const instance = await getInstance(id)
   if (!instance) {
@@ -175,9 +135,6 @@ export async function exportInstance(id: string): Promise<{ dzn: Blob; meta: Blo
   }
 }
 
-/**
- * Import instance from files
- */
 export async function importInstance(
   dznContent: string,
   metadata?: Partial<InstanceMetadata>
@@ -196,9 +153,6 @@ export async function importInstance(
   return saveInstance(dznContent, metadata as Omit<InstanceMetadata, 'id' | 'createdAt'>)
 }
 
-/**
- * Check if IndexedDB is available
- */
 export function isIndexedDBAvailable(): boolean {
   if (typeof window === 'undefined') return false
   try {

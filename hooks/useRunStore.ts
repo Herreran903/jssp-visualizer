@@ -1,10 +1,8 @@
-// hooks/useRunStore.ts
 'use client'
 
 import { useSyncExternalStore } from 'react'
 import type { SolutionEnvelope } from '../types/api'
 
-// Keep last two executions only in-memory for the current session
 type RunData = SolutionEnvelope & { meta?: any }
 
 type Snapshot = {
@@ -52,7 +50,6 @@ const store = (() => {
 export default function useRunStore() {
   const subscribe = (cb: () => void) => store.subscribe(cb)
   const getSnapshot = () => store.getSnapshot()
-  // For SSR, return a stable cached snapshot to avoid infinite loops
   const getServerSnapshot = () => EMPTY_SNAPSHOT
   const { lastRun, prevRun } = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
   return {

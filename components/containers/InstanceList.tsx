@@ -1,7 +1,7 @@
 // components/containers/InstanceList.tsx
 "use client"
 import { useState } from "react"
-import { Eye, Download, Trash2, List } from "lucide-react"
+import { Eye, Download, Trash2, List, CheckCircle2, XCircle } from "lucide-react"
 import Card from "../ui/Card"
 import useInstances from "../../hooks/useInstances"
 import InstancePreviewModal from "../ui/InstancePreviewModal"
@@ -53,9 +53,16 @@ export default function InstanceList() {
   return (
     <>
       <Card className="space-y-3 font-hand">
-        <div className="flex items-center gap-2">
-          <List className="w-5 h-5" />
-          <div className="text-xl font-bold uppercase">Instancias</div>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <List className="w-5 h-5" />
+            <div className="text-xl font-bold uppercase">Instancias</div>
+          </div>
+          {instances.length > 0 && (
+            <div className="text-xs text-(--color-text-secondary) font-hand uppercase">
+              {instances.length} instancia{instances.length !== 1 ? 's' : ''}
+            </div>
+          )}
         </div>
         
         {loading ? (
@@ -65,59 +72,63 @@ export default function InstanceList() {
             No hay instancias. Sube una instancia para comenzar.
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+          <div className="instance-table-container">
+            <table className="instance-table">
               <thead>
-                <tr className="border-b border-(--color-border-subtle) bg-(--color-surface-alt)">
-                  <th className="text-left py-2 px-2 font-sans uppercase text-xs text-(--color-text-secondary)">Nombre</th>
-                  <th className="text-left py-2 px-2 font-sans uppercase text-xs text-(--color-text-secondary)">Tipo</th>
-                  <th className="text-center py-2 px-2 font-sans uppercase text-xs text-(--color-text-secondary)">Jobs</th>
-                  <th className="text-center py-2 px-2 font-sans uppercase text-xs text-(--color-text-secondary)">Máq.</th>
-                  <th className="text-center py-2 px-2 font-sans uppercase text-xs text-(--color-text-secondary)">Ops</th>
-                  <th className="text-center py-2 px-2 font-sans uppercase text-xs text-(--color-text-secondary)">Estado</th>
-                  <th className="text-center py-2 px-2 font-sans uppercase text-xs text-(--color-text-secondary)">Tamaño</th>
-                  <th className="text-right py-2 px-2 font-sans uppercase text-xs text-(--color-text-secondary)">Acciones</th>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Tipo</th>
+                  <th>Jobs</th>
+                  <th>Máq.</th>
+                  <th>Ops</th>
+                  <th>Estado</th>
+                  <th>Tamaño</th>
+                  <th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {instances.map((inst) => (
-                  <tr key={inst.id} className="border-b border-(--color-border-subtle) hover:bg-(--overlay-02)">
-                    <td className="py-2 px-2 font-hand">
+                  <tr key={inst.id}>
+                    <td className="instance-table-name">
                       <div className="font-medium">{inst.name}</div>
-                      <div className="text-xs text-(--color-text-secondary) font-mono">{inst.id}</div>
+                      <div className="instance-table-id">{inst.id}</div>
                     </td>
-                    <td className="py-2 px-2">
-                      <span className={`font-sans ${getProblemTypeBadge(inst.problemType)}`}>
+                    <td>
+                      <span className={getProblemTypeBadge(inst.problemType)}>
                         {getProblemTypeLabel(inst.problemType)}
                       </span>
                     </td>
-                    <td className="py-2 px-2 text-center font-mono">{inst.jobs || '—'}</td>
-                    <td className="py-2 px-2 text-center font-mono">{inst.machines || '—'}</td>
-                    <td className="py-2 px-2 text-center font-mono">{inst.operations || '—'}</td>
-                    <td className="py-2 px-2 text-center">
-                      <span className={`badge font-sans ${
-                        inst.validated
-                          ? 'badge--success'
-                          : 'badge--danger'
-                      }`}>
-                        {inst.validated ? '✓' : '✗'}
-                      </span>
+                    <td className="instance-table-number">{inst.jobs || '—'}</td>
+                    <td className="instance-table-number">{inst.machines || '—'}</td>
+                    <td className="instance-table-number">{inst.operations || '—'}</td>
+                    <td className="instance-table-status">
+                      {inst.validated ? (
+                        <div className="instance-status-valid">
+                          <CheckCircle2 className="w-4 h-4" />
+                          <span>Válida</span>
+                        </div>
+                      ) : (
+                        <div className="instance-status-invalid">
+                          <XCircle className="w-4 h-4" />
+                          <span>Inválida</span>
+                        </div>
+                      )}
                     </td>
-                    <td className="py-2 px-2 text-center text-xs text-slate-600">
+                    <td className="instance-table-size">
                       {Math.round(inst.size / 1024)} KB
                     </td>
-                    <td className="py-2 px-2">
-                      <div className="flex gap-1 justify-end">
+                    <td>
+                      <div className="instance-table-actions">
                         <button
                           onClick={() => handlePreview(inst.id)}
-                          className="p-2 text-xs hover:bg-(--overlay-08) rounded font-sans transition-colors text-(--color-text-secondary) focus-visible:ring-2 focus-visible:ring-(--color-accent)"
+                          className="instance-action-btn"
                           title="Vista previa"
                         >
                           <Eye className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleExport(inst.id)}
-                          className="p-2 text-xs hover:bg-(--overlay-08) rounded font-sans transition-colors text-(--color-text-secondary) focus-visible:ring-2 focus-visible:ring-(--color-accent)"
+                          className="instance-action-btn"
                           title="Exportar"
                         >
                           <Download className="w-4 h-4" />
@@ -125,7 +136,7 @@ export default function InstanceList() {
                         <button
                           onClick={() => handleDelete(inst.id)}
                           disabled={deletingId === inst.id}
-                          className="p-2 text-xs hover:bg-(--overlay-08) rounded font-sans transition-colors text-(--color-danger) disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-(--color-accent)"
+                          className="instance-action-btn instance-action-btn--danger"
                           title="Eliminar"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -138,17 +149,11 @@ export default function InstanceList() {
             </table>
           </div>
         )}
-
-        {instances.length > 0 && (
-          <div className="pt-3 border-t border-(--color-border-subtle) text-xs text-(--color-text-secondary) font-sans uppercase">
-            Total: {instances.length} instancia{instances.length !== 1 ? 's' : ''}
-          </div>
-        )}
       </Card>
 
-      <InstancePreviewModal 
-        instance={previewInstance} 
-        onClose={() => setPreviewInstance(null)} 
+      <InstancePreviewModal
+        instance={previewInstance}
+        onClose={() => setPreviewInstance(null)}
       />
     </>
   )

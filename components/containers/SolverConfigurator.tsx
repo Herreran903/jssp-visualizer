@@ -1,4 +1,3 @@
-// components/containers/SolverConfigurator.tsx
 "use client"
 import { useEffect, useState } from "react"
 import { Settings } from "lucide-react"
@@ -47,7 +46,6 @@ export default function SolverConfigurator() {
     maxSolutions: 1,
   })
 
-  // Load persisted config on client
   useEffect(() => {
     if (typeof window === 'undefined') return
     const saved = localStorage.getItem('jssp:solverConfig')
@@ -60,7 +58,6 @@ export default function SolverConfigurator() {
     }
   }, [])
 
-  // Persist config changes
   useEffect(() => {
     if (typeof window === 'undefined') return
     localStorage.setItem('jssp:solverConfig', JSON.stringify(config))
@@ -72,8 +69,6 @@ export default function SolverConfigurator() {
         <Settings className="w-5 h-5" />
         <div className="text-xl font-bold uppercase">Configuración del Solver</div>
       </div>
-
-      {/* Problem Type */}
       <div>
         <div className="mb-1 text-xs text-slate-700 uppercase">Tipo de Problema</div>
         <Select
@@ -85,8 +80,6 @@ export default function SolverConfigurator() {
           ))}
         </Select>
       </div>
-
-      {/* Solver Selection */}
       <div>
         <div className="mb-1 text-xs text-slate-700 uppercase">Solver de MiniZinc</div>
         <Select
@@ -98,8 +91,6 @@ export default function SolverConfigurator() {
           ))}
         </Select>
       </div>
-
-      {/* Search Strategy */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
           <div className="mb-1 text-xs text-slate-700 uppercase">Heurística de Búsqueda</div>
@@ -135,8 +126,6 @@ export default function SolverConfigurator() {
           </div>
         </div>
       </div>
-
-      {/* Time and Solutions Limits */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
           <div className="mb-1 text-xs text-slate-700 uppercase">Tiempo Máximo (segundos)</div>
@@ -160,8 +149,6 @@ export default function SolverConfigurator() {
           />
         </div>
       </div>
-
-      {/* Info Box */}
       <div className="p-3 bg-blue-50 border border-blue-200 rounded text-xs text-slate-700">
         <div className="font-bold uppercase mb-1">Configuración Actual:</div>
         <div className="space-y-1">

@@ -1,4 +1,3 @@
-// hooks/useInstances.ts
 'use client'
 import { useCallback, useEffect, useState } from 'react'
 import type { InstanceMetadata, ProblemType, LocalInstance } from '../types/domain'
@@ -29,12 +28,10 @@ export default function useInstances() {
     }
   }, [])
 
-  // Initial load and migration
   useEffect(() => {
     const init = async () => {
       setLoading(true)
       try {
-        // Run migration if needed
         if (needsMigration()) {
           await migrateDrafts()
         }
@@ -48,9 +45,6 @@ export default function useInstances() {
     init()
   }, [refreshInstances])
 
-  /**
-   * Upload and validate a DZN file
-   */
   const uploadInstance = useCallback(async (
     file: File,
     problemType: ProblemType
@@ -61,10 +55,8 @@ export default function useInstances() {
       const content = await file.text()
       const name = extractInstanceName(file.name)
       
-      // Parse and validate
       const parseResult = parseDZN(content, problemType)
       
-      // Save to storage
       const id = await saveInstance(content, {
         name,
         problemType,
@@ -86,9 +78,6 @@ export default function useInstances() {
     }
   }, [refreshInstances])
 
-  /**
-   * Get full instance data (for preview)
-   */
   const getInstanceData = useCallback(async (id: string): Promise<LocalInstance | null> => {
     try {
       return await getInstance(id)
@@ -98,9 +87,6 @@ export default function useInstances() {
     }
   }, [])
 
-  /**
-   * Get instance content only (for solver)
-   */
   const getContent = useCallback(async (id: string): Promise<string | null> => {
     try {
       return await getInstanceContent(id)
@@ -110,9 +96,6 @@ export default function useInstances() {
     }
   }, [])
 
-  /**
-   * Delete an instance
-   */
   const deleteInstance = useCallback(async (id: string): Promise<void> => {
     setLoading(true)
     setError(null)
@@ -127,22 +110,17 @@ export default function useInstances() {
     }
   }, [refreshInstances])
 
-  /**
-   * Export instance as downloadable files
-   */
   const exportInstance = useCallback(async (id: string): Promise<void> => {
     try {
       const { dzn, meta, name } = await exportInstanceStorage(id)
-      
-      // Download DZN file
+
       const dznUrl = URL.createObjectURL(dzn)
       const dznLink = document.createElement('a')
       dznLink.href = dznUrl
       dznLink.download = `${name}.dzn`
       dznLink.click()
       URL.revokeObjectURL(dznUrl)
-      
-      // Download metadata file
+
       const metaUrl = URL.createObjectURL(meta)
       const metaLink = document.createElement('a')
       metaLink.href = metaUrl
@@ -155,9 +133,6 @@ export default function useInstances() {
     }
   }, [])
 
-  /**
-   * Import instance from files
-   */
   const importInstance = useCallback(async (
     dznFile: File,
     metaFile?: File
@@ -170,13 +145,10 @@ export default function useInstances() {
       let metadata: Partial<InstanceMetadata> | undefined
       
       if (metaFile) {
-        // Use provided metadata
         const metaContent = await metaFile.text()
         metadata = JSON.parse(metaContent)
       } else {
-        // Parse DZN to extract metadata
         const name = extractInstanceName(dznFile.name)
-        // Default to jssp_maint if no metadata provided
         const problemType: ProblemType = 'jssp_maint'
         const parseResult = parseDZN(dznContent, problemType)
         

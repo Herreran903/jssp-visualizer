@@ -1,18 +1,20 @@
-'use client'
-
-import Image from 'next/image'
-import React, { useRef } from 'react'
-import { useViewportScale } from '../../hooks/useViewportScale'
+"use client";
+import React, { useRef } from "react";
+import { useViewportScale } from "../../hooks/useViewportScale";
 
 type WorkbenchFrameProps = {
-  children: React.ReactNode
-  title?: string
-  nav?: React.ReactNode
-}
+  children: React.ReactNode;
+  title?: string;
+  nav?: React.ReactNode;
+};
 
-export default function WorkbenchFrame({ children, title = 'JSSP', nav }: WorkbenchFrameProps) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const contentRef = useRef<HTMLDivElement>(null)
+export default function WorkbenchFrame({
+  children,
+  title = "JSSP",
+  nav,
+}: WorkbenchFrameProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const { transformStyle } = useViewportScale({
     containerRef,
@@ -20,10 +22,13 @@ export default function WorkbenchFrame({ children, title = 'JSSP', nav }: Workbe
     padding: 24,
     maxScale: 1,
     minScale: 0.5,
-  })
+  });
 
   return (
-    <div className="relative h-dvh w-full overflow-hidden blueprint-bg" aria-label="Workbench background">
+    <div
+      className="relative h-dvh w-full overflow-hidden blueprint-bg"
+      aria-label="Workbench background"
+    >
       <div
         ref={containerRef}
         className="absolute inset-0 z-0 flex items-center justify-center p-16 sm:p-20 md:p-24"
@@ -34,13 +39,58 @@ export default function WorkbenchFrame({ children, title = 'JSSP', nav }: Workbe
           aria-hidden="true"
           width={800}
           height={200}
-      
           className="
             pointer-events-none
-            absolute -right-10 rotate-190
+            absolute right-30 top-53 rotate-270
             w-[min(35vw,720px)] max-w-none
             drop-shadow-xl
             z-0
+            blur-[0.8px]
+          "
+        />
+        <img
+          src="/decor/rule.png"
+          alt=""
+          aria-hidden="true"
+          width={800}
+          height={200}
+          className="
+            pointer-events-none
+            absolute right-295 -top-20 rotate-180
+            w-[min(35vw,720px)] max-w-none
+            drop-shadow-xl
+            z-0
+            scale-x-[-1]
+            blur-[0.8px]
+          "
+        />
+        <img
+          src="/decor/pencil.png"
+          alt=""
+          aria-hidden="true"
+          width={1200}
+          height={600}
+          className="
+              pointer-events-none
+              absolute -left-73 rotate-61 top-80 
+              w-[min(45vw,700px)] max-w-none
+              drop-shadow-xl
+              z-10
+            "
+        />
+        <img
+          src="/decor/pencil.png"
+          alt=""
+          aria-hidden="true"
+          width={1200}
+          height={600}
+          className="
+            pointer-events-none
+            absolute -right-73 top-45 -rotate-241
+            w-[min(45vw,700px)] max-w-none
+            drop-shadow-xl
+            z-10
+            scale-x-[-1]
           "
         />
         <div
@@ -56,32 +106,25 @@ export default function WorkbenchFrame({ children, title = 'JSSP', nav }: Workbe
             outline-none
           "
         >
-          <img
-            src="/decor/pencil.png"
-            alt=""
-            aria-hidden="true"
-            width={1200}
-            height={600}
-            className="
-              pointer-events-none
-              absolute -left-95 rotate-62 top-15
-              w-[min(45vw,700px)] max-w-none
-              drop-shadow-xl
-              z-0
-            "
-          />
           <div className="flex items-center justify-between gap-4 bg-(--color-surface-alt) border-b border-(--color-border-subtle) px-6 py-4">
-            <h1 className="text-5xl font-extrabold font-hand tracking-tight text-(--color-text-primary)">{title}</h1>
-            {nav ? (
-              <nav className="text-base md:text-lg font-bold font-hand" aria-label="Secciones">
-          {nav}
-                </nav>
-            ) : null}
+            <h1 className="text-5xl font-extrabold font-hand tracking-tight text-(--color-text-primary)">
+              {title}
+            </h1>
+            {nav ? <>{nav}</> : null}
           </div>
 
-          <div className="relative z-10 px-6 py-6 sm:px-8 sm:py-8 overflow-y-auto overflow-x-hidden max-h-[calc(100dvh-200px)] custom-scrollbar">{children}</div>
+          <div
+            className="
+              relative z-10 px-6 pb-20
+              overflow-y-auto overflow-x-hidden
+              max-h-[calc(100dvh-200px)]  /* antes 200px */
+              custom-scrollbar
+            "
+          >
+            {children}
+          </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

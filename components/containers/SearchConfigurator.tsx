@@ -1,4 +1,3 @@
-// components/containers/SearchConfigurator.tsx
 "use client"
 import Card from "../ui/Card"
 import Select from "../ui/Select"
@@ -9,7 +8,6 @@ import type { SearchConfig } from "../../types/domain"
 export default function SearchConfigurator() {
   const [cfg, setCfg] = useState<SearchConfig>({ heuristic: "greedy", timeLimitSec: 5, maxSolutions: 1 })
 
-  // Load persisted config on client to avoid SSR localStorage access
   useEffect(() => {
     if (typeof window === "undefined") return
     const saved = localStorage.getItem("jssp:searchConfig")

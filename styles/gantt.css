@@ -26,7 +26,8 @@
   min-width: 180px;
   padding: 12px 16px;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 14px;
+  font-family: var(--font-hand), sans-serif;
   color: var(--color-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -71,7 +72,7 @@
   top: 8px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--color-text-secondary);
   background: var(--color-surface-alt);
@@ -81,6 +82,7 @@
   border: none;
   min-width: 24px;
   text-align: center;
+  font-family: var(--font-hand), sans-serif;
 }
 
 .gantt-tick:last-child .gantt-tick-label {
@@ -147,15 +149,15 @@
 
 .gantt-machine-name {
   font-weight: 700;
-  font-size: 14px;
+  font-size: 15px;
   color: var(--color-text-primary);
   font-family: var(--font-hand), sans-serif;
 }
 
 .gantt-machine-id {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--color-text-secondary);
-  font-family: monospace;
+  font-family: var(--font-hand), sans-serif;
   opacity: 0.7;
 }
 
@@ -195,7 +197,7 @@
 }
 
 .gantt-operation-label {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 800;
   color: rgba(255, 255, 255, 0.95);
   font-family: var(--font-hand), sans-serif;
@@ -206,11 +208,11 @@
 }
 
 .gantt-operation-time {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.75);
   margin-top: 2px;
-  font-family: monospace;
+  font-family: var(--font-hand), sans-serif;
 }
 
 /* Legend */
@@ -225,11 +227,12 @@
 }
 
 .gantt-legend-title {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--color-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  font-family: var(--font-hand), sans-serif;
 }
 
 .gantt-legend-items {
@@ -257,7 +260,7 @@
 }
 
 .gantt-legend-label {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--color-text-primary);
   font-family: var(--font-hand), sans-serif;
@@ -309,7 +312,7 @@ html[data-theme="dark"] .gantt-legend-color {
   position: absolute;
   left: 8px;
   top: 2px;
-  font-size: 11px;
+  font-size: 12px;
   color: #0b1220;
   font-weight: 800;
   font-family: var(--font-hand), sans-serif;

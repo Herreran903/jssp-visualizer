@@ -1,4 +1,3 @@
-/* hooks/useOneShot.ts */
 'use client'
 import { useState } from 'react'
 import type { SolverConfig } from '../types/domain'
@@ -24,7 +23,6 @@ export default function useOneShot() {
       if (params.instanceId) form.append('instanceId', params.instanceId)
       if (params.instanceName) form.append('instanceName', params.instanceName)
       
-      // Send solver config as JSON
       form.append('solverConfig', JSON.stringify(params.solverConfig))
       
       const res = await fetch('/api/solve-once', { method: 'POST', body: form })

@@ -7,7 +7,7 @@ type Props = React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primar
 export default function Button({ variant = 'primary', className = '', ...props }: Props) {
   // Paper-integrated, hand-written style: no fills, no strong rounding, neutral ink
   const base =
-    'inline-flex items-center justify-center font-hand tracking-wide text-sm normal-case rounded-none select-none disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] transition-colors cursor-pointer font-sans shadow-none'
+    'inline-flex items-center justify-center font-hand tracking-wide text-base uppercase rounded-none select-none disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] transition-colors cursor-pointer shadow-none'
 
   const styles =
     variant === 'primary'

@@ -1,4 +1,3 @@
-// components/containers/ModelConfigurator.tsx
 "use client"
 import Card from "../ui/Card"
 import Select from "../ui/Select"

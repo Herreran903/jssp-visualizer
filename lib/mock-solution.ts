@@ -1,9 +1,5 @@
-// lib/mock-solution.ts
 import type { SolutionEnvelope } from '../types/api'
 
-/**
- * Mock solution with realistic JSSP data for testing and development
- */
 export function createMockSolution(config?: {
   instanceId?: string
   instanceName?: string
@@ -21,17 +17,14 @@ export function createMockSolution(config?: {
   ]
 
   const operations = [
-    // Job 1
     { jobId: "J1", machineId: "M1", opId: "J1-T1", start: 0, end: 3, duration: 3 },
     { jobId: "J1", machineId: "M2", opId: "J1-T2", start: 3, end: 5, duration: 2 },
     { jobId: "J1", machineId: "M3", opId: "J1-T3", start: 5, end: 7, duration: 2 },
     
-    // Job 2
     { jobId: "J2", machineId: "M2", opId: "J2-T1", start: 0, end: 2, duration: 2 },
     { jobId: "J2", machineId: "M1", opId: "J2-T2", start: 3, end: 4, duration: 1 },
     { jobId: "J2", machineId: "M3", opId: "J2-T3", start: 7, end: 11, duration: 4 },
     
-    // Job 3
     { jobId: "J3", machineId: "M3", opId: "J3-T1", start: 0, end: 4, duration: 4 },
     { jobId: "J3", machineId: "M1", opId: "J3-T2", start: 4, end: 7, duration: 3 },
     { jobId: "J3", machineId: "M2", opId: "J3-T3", start: 7, end: 8, duration: 1 },
@@ -39,7 +32,6 @@ export function createMockSolution(config?: {
 
   const makespan = Math.max(...operations.map(op => op.end))
 
-  // Calculate utilization per machine
   const utilizationByMachine: Record<string, number> = {}
   machines.forEach(m => {
     const machineOps = operations.filter(op => op.machineId === m.id)

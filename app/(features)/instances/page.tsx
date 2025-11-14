@@ -1,4 +1,3 @@
-// app/(features)/instances/page.tsx
 'use client'
 import InstanceUploader from '../../../components/containers/InstanceUploader'
 import InstanceList from '../../../components/containers/InstanceList'
