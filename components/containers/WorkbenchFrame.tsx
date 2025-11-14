@@ -50,7 +50,7 @@ export default function WorkbenchFrame({ children, title = 'JSSP', nav }: Workbe
           aria-label="Plano de trabajo"
           tabIndex={-1}
           className="
-            paper-surface relative z-10
+            paper-surface relative z-10 overflow-hidden isolate
             w-[1200px] text-slate-800
             shadow-2xl ring-1 ring-black/10
             outline-none focus-visible:outline-2 focus-visible:outline-blue-500/70
@@ -67,7 +67,7 @@ export default function WorkbenchFrame({ children, title = 'JSSP', nav }: Workbe
               absolute -left-95 rotate-62 top-15
               w-[min(45vw,700px)] max-w-none
               drop-shadow-xl
-              z-20
+              z-0
             "
           />
           <div className="flex items-center justify-between gap-4 border-b border-black/10 px-6 py-4">
@@ -79,7 +79,7 @@ export default function WorkbenchFrame({ children, title = 'JSSP', nav }: Workbe
             ) : null}
           </div>
 
-          <div className="px-6 py-6 sm:px-8 sm:py-8 overflow-y-auto max-h-[calc(100vh-200px)] custom-scrollbar ">{children}</div>
+          <div className="relative z-10 px-6 py-6 sm:px-8 sm:py-8 overflow-y-auto overflow-x-hidden max-h-[calc(100dvh-200px)] custom-scrollbar">{children}</div>
         </div>
       </div>
     </div>
