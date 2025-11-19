@@ -6,6 +6,7 @@ import GanttMini from "../ui/GanttMini";
 import Chart from "../ui/Chart";
 import useRunStore from "../../hooks/useRunStore";
 import { useEffect, useMemo, useState, useRef } from "react";
+import html2canvas from "html2canvas"
 import { useRouter } from "next/navigation";
 import { jsspResultToCSV } from "../../lib/jssp-result-to-csv";
 
@@ -92,29 +93,33 @@ export default function ResultsDashboard() {
     URL.revokeObjectURL(url);
   }
 
-  function printGantt() {
-    if (typeof window === "undefined") return;
+  async function printGantt() {
+  console.log("[printGantt] click")  // 👈 para ver si entra
 
-    const el = ganttRef.current;
-    if (!el) return;
-    (async () => {
-      const { default: html2canvas } = await import("html2canvas");
+  if (!ganttRef.current) {
+    console.error("[printGantt] ganttRef.current es null")
+    return
+  }
 
-      const canvas = await html2canvas(el, {
-        backgroundColor: "#ffffff",
-        scale: 2, // más resolución para que se vea nítido en PDF
-      });
+  try {
+    console.log("[printGantt] capturando con html2canvas...")
+    const canvas = await html2canvas(ganttRef.current, {
+      backgroundColor: "#ffffff",
+      scale: 2,
+    })
 
-      const imgData = canvas.toDataURL("image/png");
+    const imgData = canvas.toDataURL("image/png")
 
-      const meta = lastRun?.meta || {};
-      const title = meta.instanceName || meta.instanceId || "Gantt";
+    const meta = lastRun?.meta || {}
+    const title = meta.instanceName || meta.instanceId || "Gantt"
 
-      const printWindow = window.open("", "_blank", "width=1200,height=800");
-      if (!printWindow) return;
+    const printWindow = window.open("", "_blank", "width=1200,height=800")
+    if (!printWindow) {
+      console.error("[printGantt] popup bloqueado o window.open devolvió null")
+      return
+    }
 
-      // HTML que se inyecta en la ventana nueva
-      const html = `
+    const html = `
       <html>
         <head>
           <title>${title}</title>
@@ -151,9 +156,8 @@ export default function ResultsDashboard() {
             <img id="gantt-img" src="${imgData}" />
           </div>
           <script>
-            // Esperar a que la imagen cargue antes de imprimir
             window.onload = function () {
-              var img = document.getElementById('gantt-img');
+              var img = document.getElementById("gantt-img");
               if (img && !img.complete) {
                 img.onload = function () {
                   window.focus();
@@ -167,13 +171,16 @@ export default function ResultsDashboard() {
           <\/script>
         </body>
       </html>
-    `;
+    `
 
-      printWindow.document.open();
-      printWindow.document.write(html);
-      printWindow.document.close();
-    })();
+    printWindow.document.open()
+    printWindow.document.write(html)
+    printWindow.document.close()
+    console.log("[printGantt] ventana de impresión creada")
+  } catch (err) {
+    console.error("[printGantt] error:", err)
   }
+}
 
   function exportCSV() {
     if (!lastRun) return;
