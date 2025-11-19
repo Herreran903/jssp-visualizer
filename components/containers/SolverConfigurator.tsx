@@ -138,6 +138,17 @@ export default function SolverConfigurator() {
           />
         </div>
 
+        <div>
+          <div className="mb-1 text-xs text-slate-700 uppercase">Máximo de Soluciones</div>
+          <Input
+            type="number"
+            min="1"
+            max="100"
+            value={1}
+            onChange={(e) => setConfig({ ...config, maxSolutions: Number(e.target.value) })}
+            disabled
+          />
+        </div>
       </div>
       <div className="p-3 bg-blue-50 border border-blue-200 rounded text-xs text-slate-700">
         <div className="font-bold uppercase mb-1">Configuración Actual:</div>
