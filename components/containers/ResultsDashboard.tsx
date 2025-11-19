@@ -7,6 +7,7 @@ import Chart from "../ui/Chart"
 import useRunStore from "../../hooks/useRunStore"
 import { useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
+import { jsspResultToCSV } from "../../lib/jssp-result-to-csv"
 
 export default function ResultsDashboard() {
   const router = useRouter()
@@ -75,6 +76,26 @@ export default function ResultsDashboard() {
     URL.revokeObjectURL(url)
   }
 
+  function exportCSV() {
+  if (!lastRun) return
+
+  const csv = jsspResultToCSV(lastRun)
+
+  const blob = new Blob([csv], {
+    type: "text/csv;charset=utf-8;",
+  })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement("a")
+  a.href = url
+  a.download = `jssp-results-${new Date()
+    .toISOString()
+    .replace(/[:.]/g, "-")}.csv`
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  URL.revokeObjectURL(url)
+}
+
   const meta = lastRun?.meta || {}
   const instanceLabel =
     meta.instanceName || meta.instanceId || "—"
@@ -90,8 +111,8 @@ export default function ResultsDashboard() {
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="text-xl font-bold uppercase">Ejecución</div>
             <div className="flex gap-2">
-              <Button variant="ghost" onClick={copyJSON}>Copiar JSON</Button>
-              <Button onClick={exportJSON}>Exportar</Button>
+              <Button variant="ghost" onClick={exportJSON}>Exportar JSON</Button>
+              <Button onClick={exportCSV}>Exportar CSV</Button>
             </div>
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
