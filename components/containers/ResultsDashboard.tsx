@@ -1,113 +1,120 @@
-"use client"
-import Card from "../ui/Card"
-import Button from "../ui/Button"
-import Stat from "../ui/Stat"
-import GanttMini from "../ui/GanttMini"
-import Chart from "../ui/Chart"
-import useRunStore from "../../hooks/useRunStore"
-import { useEffect, useMemo, useState, useRef } from "react"
-import { useRouter } from "next/navigation"
-import { jsspResultToCSV } from "../../lib/jssp-result-to-csv"
+"use client";
+import Card from "../ui/Card";
+import Button from "../ui/Button";
+import Stat from "../ui/Stat";
+import GanttMini from "../ui/GanttMini";
+import Chart from "../ui/Chart";
+import useRunStore from "../../hooks/useRunStore";
+import { useEffect, useMemo, useState, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { jsspResultToCSV } from "../../lib/jssp-result-to-csv";
 
 export default function ResultsDashboard() {
-  const router = useRouter()
-  const { lastRun, prevRun } = useRunStore()
-  const [compare, setCompare] = useState(false)
-  const [view, setView] = useState<"A" | "B">("A")
-  const ganttRef = useRef<HTMLDivElement | null>(null)
+  const router = useRouter();
+  const { lastRun, prevRun } = useRunStore();
+  const [compare, setCompare] = useState(false);
+  const [view, setView] = useState<"A" | "B">("A");
+  const ganttRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (!lastRun) router.replace("/run")
-  }, [lastRun, router])
+    if (!lastRun) router.replace("/run");
+  }, [lastRun, router]);
 
-  const current = view === "A" ? lastRun : prevRun
+  const current = view === "A" ? lastRun : prevRun;
 
   const summarize = (env: any | null) => {
-    if (!env?.solution) return null
-    const s = env.solution
-    const makespan = s.makespan || 0
-    const ops = s.operations || []
-    const machines = s.machines || []
-    const stats = s.stats || {}
-    const durationsByMachine = new Map<string, number>()
+    if (!env?.solution) return null;
+    const s = env.solution;
+    const makespan = s.makespan || 0;
+    const ops = s.operations || [];
+    const machines = s.machines || [];
+    const stats = s.stats || {};
+    const durationsByMachine = new Map<string, number>();
     for (const op of ops) {
-      durationsByMachine.set(op.machineId, (durationsByMachine.get(op.machineId) || 0) + (op.duration || 0))
+      durationsByMachine.set(
+        op.machineId,
+        (durationsByMachine.get(op.machineId) || 0) + (op.duration || 0)
+      );
     }
-    const utilPerMachine: Record<string, number> = {}
+    const utilPerMachine: Record<string, number> = {};
     for (const m of machines) {
-      const dur = durationsByMachine.get(m.id) || 0
-      utilPerMachine[m.id] = makespan > 0 ? +(dur / makespan).toFixed(3) : 0
+      const dur = durationsByMachine.get(m.id) || 0;
+      utilPerMachine[m.id] = makespan > 0 ? +(dur / makespan).toFixed(3) : 0;
     }
     return {
       makespan,
-      tardinessTotal: Number((stats.w ?? stats.tardanza ?? stats.tardiness ?? 0) as number),
+      tardinessTotal: Number(
+        (stats.w ?? stats.tardanza ?? stats.tardiness ?? 0) as number
+      ),
       operations: ops.length,
       machines: machines.length,
       violations: Number((stats.violations ?? 0) as number),
       utilPerMachine,
       stats,
-    }
-  }
+    };
+  };
 
-  const sumA = useMemo(() => summarize(lastRun), [lastRun])
-  const sumB = useMemo(() => summarize(prevRun), [prevRun])
-  const canCompare = Boolean(prevRun?.solution)
+  const sumA = useMemo(() => summarize(lastRun), [lastRun]);
+  const sumB = useMemo(() => summarize(prevRun), [prevRun]);
+  const canCompare = Boolean(prevRun?.solution);
 
   const chartData = useMemo(() => {
-    const stats = current?.solution?.stats || {}
-    return Object.keys(stats).map((k) => ({ name: k, value: stats[k] }))
-  }, [current])
+    const stats = current?.solution?.stats || {};
+    return Object.keys(stats).map((k) => ({ name: k, value: stats[k] }));
+  }, [current]);
 
   // Actions
-  
+
   async function copyJSON() {
-    if (!lastRun) return
-    await navigator.clipboard.writeText(JSON.stringify(lastRun, null, 2))
+    if (!lastRun) return;
+    await navigator.clipboard.writeText(JSON.stringify(lastRun, null, 2));
   }
 
   function printPDF() {
-  if (typeof window === "undefined") return
-  window.print()
-}
-
-  function exportJSON() {
-    if (!lastRun) return
-    const blob = new Blob([JSON.stringify(lastRun, null, 2)], { type: "application/json" })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = `jssp-results-${new Date().toISOString().replace(/[:.]/g, "-")}.json`
-    document.body.appendChild(a)
-    a.click()
-    a.remove()
-    URL.revokeObjectURL(url)
+    if (typeof window === "undefined") return;
+    window.print();
   }
 
-function printGantt() {
-  if (typeof window === "undefined") return
+  function exportJSON() {
+    if (!lastRun) return;
+    const blob = new Blob([JSON.stringify(lastRun, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `jssp-results-${new Date()
+      .toISOString()
+      .replace(/[:.]/g, "-")}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
 
-  // Guardamos el elemento en una constante
-  const el = ganttRef.current
-  if (!el) return
+  function printGantt() {
+    if (typeof window === "undefined") return;
 
-  ;(async () => {
-    const { default: html2canvas } = await import("html2canvas")
+    const el = ganttRef.current;
+    if (!el) return;
+    (async () => {
+      const { default: html2canvas } = await import("html2canvas");
 
-    // Aquí TS ya sabe que 'el' es HTMLDivElement (subtipo de HTMLElement)
-    const canvas = await html2canvas(el, {
-      backgroundColor: "#ffffff",
-      scale: 2, // más resolución
-    })
+      const canvas = await html2canvas(el, {
+        backgroundColor: "#ffffff",
+        scale: 2, // más resolución para que se vea nítido en PDF
+      });
 
-    const imgData = canvas.toDataURL("image/png")
+      const imgData = canvas.toDataURL("image/png");
 
-    const meta = lastRun?.meta || {}
-    const title = meta.instanceName || meta.instanceId || "Gantt"
+      const meta = lastRun?.meta || {};
+      const title = meta.instanceName || meta.instanceId || "Gantt";
 
-    const printWindow = window.open("", "_blank", "width=1200,height=800")
-    if (!printWindow) return
+      const printWindow = window.open("", "_blank", "width=1200,height=800");
+      if (!printWindow) return;
 
-    printWindow.document.write(`
+      // HTML que se inyecta en la ventana nueva
+      const html = `
       <html>
         <head>
           <title>${title}</title>
@@ -141,86 +148,125 @@ function printGantt() {
         <body>
           <h1>${title} – Gantt</h1>
           <div class="gantt-img-wrapper">
-            <img src="${imgData}" />
+            <img id="gantt-img" src="${imgData}" />
           </div>
+          <script>
+            // Esperar a que la imagen cargue antes de imprimir
+            window.onload = function () {
+              var img = document.getElementById('gantt-img');
+              if (img && !img.complete) {
+                img.onload = function () {
+                  window.focus();
+                  window.print();
+                };
+              } else {
+                window.focus();
+                window.print();
+              }
+            };
+          <\/script>
         </body>
       </html>
-    `)
+    `;
 
-    printWindow.document.close()
-    printWindow.focus()
-    printWindow.print()
-  })()
-}
+      printWindow.document.open();
+      printWindow.document.write(html);
+      printWindow.document.close();
+    })();
+  }
 
   function exportCSV() {
-  if (!lastRun) return
+    if (!lastRun) return;
 
-  const csv = jsspResultToCSV(lastRun)
+    const csv = jsspResultToCSV(lastRun);
 
-  const blob = new Blob([csv], {
-    type: "text/csv;charset=utf-8;",
-  })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement("a")
-  a.href = url
-  a.download = `jssp-results-${new Date()
-    .toISOString()
-    .replace(/[:.]/g, "-")}.csv`
-  document.body.appendChild(a)
-  a.click()
-  a.remove()
-  URL.revokeObjectURL(url)
-}
+    const blob = new Blob([csv], {
+      type: "text/csv;charset=utf-8;",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `jssp-results-${new Date()
+      .toISOString()
+      .replace(/[:.]/g, "-")}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
 
-  const meta = lastRun?.meta || {}
-  const instanceLabel =
-    meta.instanceName || meta.instanceId || "—"
+  const meta = lastRun?.meta || {};
+  const instanceLabel = meta.instanceName || meta.instanceId || "—";
   const jmLabel =
-    meta.jobs && meta.machines ? `${meta.jobs} × ${meta.machines}` : "—"
+    meta.jobs && meta.machines ? `${meta.jobs} × ${meta.machines}` : "—";
   const timeLimitMs =
-    typeof meta.timeLimit === "number" ? meta.timeLimit : meta.timeLimit && typeof meta.timeLimit === "string" ? Number(meta.timeLimit) : undefined
+    typeof meta.timeLimit === "number"
+      ? meta.timeLimit
+      : meta.timeLimit && typeof meta.timeLimit === "string"
+      ? Number(meta.timeLimit)
+      : undefined;
 
   return (
-  <div className="space-y-6 font-hand uppercase text-slate-800 print-page">
-    {lastRun?.solution && (
-      <Card className="space-y-3 font-hand">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="text-xl font-bold uppercase">Ejecución</div>
-          <div className="flex gap-2 no-print">
-            <Button variant="ghost" onClick={exportJSON}>exportar JSON</Button>
-            <Button onClick={exportCSV}>exportar CSV</Button>
-            <Button variant="outline" onClick={printGantt}>Imprimir Diagrama</Button>
+    <div className="space-y-6 font-hand uppercase text-slate-800 print-page">
+      {lastRun?.solution && (
+        <Card className="space-y-3 font-hand">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="text-xl font-bold uppercase">Ejecución</div>
+            <div className="flex gap-2 no-print">
+              <Button variant="ghost" onClick={exportJSON}>
+                exportar JSON
+              </Button>
+              <Button onClick={exportCSV}>exportar CSV</Button>
+              <Button variant="outline" onClick={printGantt}>
+                Imprimir Diagrama
+              </Button>
+            </div>
           </div>
-        </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div>
-              <div className="mb-1 text-xs text-slate-700 uppercase">Instancia</div>
+              <div className="mb-1 text-xs text-slate-700 uppercase">
+                Instancia
+              </div>
               <div className="text-sm">{instanceLabel}</div>
             </div>
             <div>
-              <div className="mb-1 text-xs text-slate-700 uppercase">Jobs × Máquinas</div>
+              <div className="mb-1 text-xs text-slate-700 uppercase">
+                Jobs × Máquinas
+              </div>
               <div className="text-sm">{jmLabel}</div>
             </div>
             <div>
-              <div className="mb-1 text-xs text-slate-700 uppercase">Fecha/Hora</div>
+              <div className="mb-1 text-xs text-slate-700 uppercase">
+                Fecha/Hora
+              </div>
               <div className="text-sm">{meta.timestamp || "—"}</div>
             </div>
             <div>
-              <div className="mb-1 text-xs text-slate-700 uppercase">Estrategia</div>
+              <div className="mb-1 text-xs text-slate-700 uppercase">
+                Estrategia
+              </div>
               <div className="text-sm">{meta.strategy || "—"}</div>
             </div>
             <div>
-              <div className="mb-1 text-xs text-slate-700 uppercase">Modelo</div>
+              <div className="mb-1 text-xs text-slate-700 uppercase">
+                Modelo
+              </div>
               <div className="text-sm">
-                {meta.modelId || "—"}{meta.variation ? ` · ${meta.variation}` : ""}
+                {meta.modelId || "—"}
+                {meta.variation ? ` · ${meta.variation}` : ""}
               </div>
             </div>
             <div>
-              <div className="mb-1 text-xs text-slate-700 uppercase">Tiempo/Seed</div>
+              <div className="mb-1 text-xs text-slate-700 uppercase">
+                Tiempo/Seed
+              </div>
               <div className="text-sm">
-                {typeof meta.elapsedMs === "number" ? `${meta.elapsedMs} ms` : "—"}
-                {typeof timeLimitMs === "number" ? ` / límite ${timeLimitMs} ms` : ""}
+                {typeof meta.elapsedMs === "number"
+                  ? `${meta.elapsedMs} ms`
+                  : "—"}
+                {typeof timeLimitMs === "number"
+                  ? ` / límite ${timeLimitMs} ms`
+                  : ""}
                 {typeof meta.seed === "number" ? ` · seed ${meta.seed}` : ""}
               </div>
             </div>
@@ -243,8 +289,21 @@ function printGantt() {
               Comparar con ejecución anterior
             </label>
             <div className="flex items-center gap-1">
-              <Button variant="ghost" onClick={() => setView("A")} disabled={view === "A"}>A</Button>
-              <Button variant="ghost" onClick={() => setView("B")} disabled={!canCompare || view === "B"} title={canCompare ? "" : "Aún no hay ejecución anterior"}>B</Button>
+              <Button
+                variant="ghost"
+                onClick={() => setView("A")}
+                disabled={view === "A"}
+              >
+                A
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => setView("B")}
+                disabled={!canCompare || view === "B"}
+                title={canCompare ? "" : "Aún no hay ejecución anterior"}
+              >
+                B
+              </Button>
             </div>
           </div>
         </div>
@@ -284,14 +343,18 @@ function printGantt() {
                   <td className="px-3 py-2">
                     {sumA?.utilPerMachine
                       ? Object.entries(sumA.utilPerMachine).map(([m, v]) => (
-                          <span key={m} className="mr-3">{m}: {v}</span>
+                          <span key={m} className="mr-3">
+                            {m}: {v}
+                          </span>
                         ))
                       : "—"}
                   </td>
                   <td className="px-3 py-2">
                     {sumB?.utilPerMachine
                       ? Object.entries(sumB.utilPerMachine).map(([m, v]) => (
-                          <span key={m} className="mr-3">{m}: {v}</span>
+                          <span key={m} className="mr-3">
+                            {m}: {v}
+                          </span>
                         ))
                       : "—"}
                   </td>
@@ -302,28 +365,30 @@ function printGantt() {
         )}
       </Card>
       {current?.solution && (
-  <>
-    <Card className="font-hand">
-      <div className="mb-3 text-sm text-slate-700 uppercase">Gantt</div>
-      <div ref={ganttRef}>
-        <GanttMini
-          makespan={current.solution.makespan}
-          machines={current.solution.machines}
-          operations={current.solution.operations}
-        />
-      </div>
-    </Card>
+        <>
+          <Card className="font-hand">
+            <div className="mb-3 text-sm text-slate-700 uppercase">Gantt</div>
+            <div ref={ganttRef}>
+              <GanttMini
+                makespan={current.solution.makespan}
+                machines={current.solution.machines}
+                operations={current.solution.operations}
+              />
+            </div>
+          </Card>
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
             <Stat label="Makespan" value={current.solution.makespan} />
             <Stat label="Ops" value={current.solution.operations.length} />
             <Stat label="Máquinas" value={current.solution.machines.length} />
           </div>
           <Card className="font-hand">
-            <div className="mb-3 text-sm text-slate-700 uppercase">Métricas</div>
+            <div className="mb-3 text-sm text-slate-700 uppercase">
+              Métricas
+            </div>
             <Chart data={chartData} kind="bar" />
           </Card>
         </>
       )}
     </div>
-  )
+  );
 }
