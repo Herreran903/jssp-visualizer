@@ -146,7 +146,6 @@ export default function SolverConfigurator() {
             max="100"
             value={1}
             onChange={(e) => setConfig({ ...config, maxSolutions: Number(e.target.value) })}
-            disabled
           />
         </div>
       </div>
