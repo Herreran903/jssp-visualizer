@@ -6,7 +6,7 @@ import GanttMini from "../ui/GanttMini";
 import Chart from "../ui/Chart";
 import useRunStore from "../../hooks/useRunStore";
 import { useEffect, useMemo, useState, useRef } from "react";
-import html2canvas from "html2canvas"
+import html2canvas from "html2canvas";
 import { useRouter } from "next/navigation";
 import { jsspResultToCSV } from "../../lib/jssp-result-to-csv";
 
@@ -94,32 +94,34 @@ export default function ResultsDashboard() {
   }
 
   async function printGantt() {
-  console.log("[printGantt] click")  // 👈 para ver si entra
+    console.log("[printGantt] click"); // 👈 para ver si entra
 
-  if (!ganttRef.current) {
-    console.error("[printGantt] ganttRef.current es null")
-    return
-  }
-
-  try {
-    console.log("[printGantt] capturando con html2canvas...")
-    const canvas = await html2canvas(ganttRef.current, {
-      backgroundColor: "#ffffff",
-      scale: 2,
-    })
-
-    const imgData = canvas.toDataURL("image/png")
-
-    const meta = lastRun?.meta || {}
-    const title = meta.instanceName || meta.instanceId || "Gantt"
-
-    const printWindow = window.open("", "_blank", "width=1200,height=800")
-    if (!printWindow) {
-      console.error("[printGantt] popup bloqueado o window.open devolvió null")
-      return
+    if (!ganttRef.current) {
+      console.error("[printGantt] ganttRef.current es null");
+      return;
     }
 
-    const html = `
+    try {
+      console.log("[printGantt] capturando con html2canvas...");
+      const canvas = await html2canvas(ganttRef.current, {
+        backgroundColor: "#ffffff",
+        scale: 2,
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+
+      const meta = lastRun?.meta || {};
+      const title = meta.instanceName || meta.instanceId || "Gantt";
+
+      const printWindow = window.open("", "_blank", "width=1200,height=800");
+      if (!printWindow) {
+        console.error(
+          "[printGantt] popup bloqueado o window.open devolvió null"
+        );
+        return;
+      }
+
+      const html = `
       <html>
         <head>
           <title>${title}</title>
@@ -171,25 +173,54 @@ export default function ResultsDashboard() {
           <\/script>
         </body>
       </html>
-    `
+    `;
 
-    printWindow.document.open()
-    printWindow.document.write(html)
-    printWindow.document.close()
-    console.log("[printGantt] ventana de impresión creada")
-  } catch (err) {
-    console.error("[printGantt] error:", err)
+      printWindow.document.open();
+      printWindow.document.write(html);
+      printWindow.document.close();
+      console.log("[printGantt] ventana de impresión creada");
+    } catch (err) {
+      console.error("[printGantt] error:", err);
+    }
   }
-}
 
   function exportCSV() {
-    if (!lastRun) return;
+    if (!lastRun?.solution) return;
 
-    const csv = jsspResultToCSV(lastRun);
+    const ops = lastRun.solution.operations || [];
+
+    if (!ops.length) return;
+
+    // usamos COMA como separador
+    const SEP = ",";
+
+    const header = [
+      "job_id",
+      "machine_id",
+      "op_id",
+      "start",
+      "end",
+      "duration",
+    ].join(SEP);
+
+    const rows = ops.map((op: any) => {
+      const jobId = op.jobId ?? "";
+      const machineId = op.machineId ?? "";
+      const opId = op.id ?? `${jobId}-${machineId}`;
+      const start = op.start ?? 0;
+      const end = op.end ?? start + (op.duration ?? 0);
+      const duration = op.duration ?? end - start;
+
+      return [jobId, machineId, opId, start, end, duration].join(SEP);
+    });
+
+    // BOM para que Excel detecte bien UTF-8
+    const csv = "\ufeff" + [header, ...rows].join("\n");
 
     const blob = new Blob([csv], {
       type: "text/csv;charset=utf-8;",
     });
+
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -224,9 +255,9 @@ export default function ResultsDashboard() {
                 exportar JSON
               </Button>
               <Button onClick={exportCSV}>exportar CSV</Button>
-              <Button variant="outline" onClick={printGantt}>
+              {/* <Button variant="outline" onClick={printGantt}>
                 Imprimir Diagrama
-              </Button>
+              </Button> */}
             </div>
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
