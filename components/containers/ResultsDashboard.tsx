@@ -83,17 +83,74 @@ export default function ResultsDashboard() {
     URL.revokeObjectURL(url)
   }
 
-  function printGantt() {
+function printGantt() {
   if (typeof window === "undefined") return
 
-  // Marcamos el body para el modo impresión de Gantt
-  document.body.classList.add("printing-gantt")
+  // Guardamos el elemento en una constante
+  const el = ganttRef.current
+  if (!el) return
 
-  // Pequeño delay para que el navegador aplique los estilos antes de imprimir
-  setTimeout(() => {
-    window.print()
-    document.body.classList.remove("printing-gantt")
-  }, 50)
+  ;(async () => {
+    const { default: html2canvas } = await import("html2canvas")
+
+    // Aquí TS ya sabe que 'el' es HTMLDivElement (subtipo de HTMLElement)
+    const canvas = await html2canvas(el, {
+      backgroundColor: "#ffffff",
+      scale: 2, // más resolución
+    })
+
+    const imgData = canvas.toDataURL("image/png")
+
+    const meta = lastRun?.meta || {}
+    const title = meta.instanceName || meta.instanceId || "Gantt"
+
+    const printWindow = window.open("", "_blank", "width=1200,height=800")
+    if (!printWindow) return
+
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>${title}</title>
+          <style>
+            * { box-sizing: border-box; }
+            body {
+              margin: 0;
+              padding: 20px;
+              font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+              background: #ffffff;
+            }
+            h1 {
+              font-size: 18px;
+              margin: 0 0 12px 0;
+              text-transform: uppercase;
+              font-weight: 700;
+            }
+            .gantt-img-wrapper {
+              max-width: 1100px;
+              margin: 0 auto;
+              border: 1px solid #ddd;
+              padding: 8px;
+            }
+            img {
+              width: 100%;
+              height: auto;
+              display: block;
+            }
+          </style>
+        </head>
+        <body>
+          <h1>${title} – Gantt</h1>
+          <div class="gantt-img-wrapper">
+            <img src="${imgData}" />
+          </div>
+        </body>
+      </html>
+    `)
+
+    printWindow.document.close()
+    printWindow.focus()
+    printWindow.print()
+  })()
 }
 
   function exportCSV() {
@@ -246,13 +303,15 @@ export default function ResultsDashboard() {
       </Card>
       {current?.solution && (
   <>
-    <Card className="font-hand gantt-print-area">
+    <Card className="font-hand">
       <div className="mb-3 text-sm text-slate-700 uppercase">Gantt</div>
-      <GanttMini
-        makespan={current.solution.makespan}
-        machines={current.solution.machines}
-        operations={current.solution.operations}
-      />
+      <div ref={ganttRef}>
+        <GanttMini
+          makespan={current.solution.makespan}
+          machines={current.solution.machines}
+          operations={current.solution.operations}
+        />
+      </div>
     </Card>
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
             <Stat label="Makespan" value={current.solution.makespan} />
