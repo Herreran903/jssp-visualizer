@@ -58,10 +58,16 @@ export default function ResultsDashboard() {
   }, [current])
 
   // Actions
+  
   async function copyJSON() {
     if (!lastRun) return
     await navigator.clipboard.writeText(JSON.stringify(lastRun, null, 2))
   }
+
+  function printPDF() {
+  if (typeof window === "undefined") return
+  window.print()
+}
 
   function exportJSON() {
     if (!lastRun) return
@@ -105,16 +111,17 @@ export default function ResultsDashboard() {
     typeof meta.timeLimit === "number" ? meta.timeLimit : meta.timeLimit && typeof meta.timeLimit === "string" ? Number(meta.timeLimit) : undefined
 
   return (
-    <div className="space-y-6 font-hand uppercase text-slate-800">
-      {lastRun?.solution && (
-        <Card className="space-y-3 font-hand">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="text-xl font-bold uppercase">Ejecución</div>
-            <div className="flex gap-2">
-              <Button variant="ghost" onClick={exportJSON}>Exportar JSON</Button>
-              <Button onClick={exportCSV}>Exportar CSV</Button>
-            </div>
+  <div className="space-y-6 font-hand uppercase text-slate-800 print-page">
+    {lastRun?.solution && (
+      <Card className="space-y-3 font-hand">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="text-xl font-bold uppercase">Ejecución</div>
+          <div className="flex gap-2 no-print">
+            <Button variant="ghost" onClick={exportJSON}>exportar JSON</Button>
+            <Button onClick={exportCSV}>exportar CSV</Button>
+            <Button variant="outline" onClick={printPDF}>Imprimir PDF</Button>
           </div>
+        </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div>
               <div className="mb-1 text-xs text-slate-700 uppercase">Instancia</div>
