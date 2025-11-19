@@ -5,7 +5,7 @@ import Stat from "../ui/Stat"
 import GanttMini from "../ui/GanttMini"
 import Chart from "../ui/Chart"
 import useRunStore from "../../hooks/useRunStore"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { jsspResultToCSV } from "../../lib/jssp-result-to-csv"
 
@@ -14,6 +14,7 @@ export default function ResultsDashboard() {
   const { lastRun, prevRun } = useRunStore()
   const [compare, setCompare] = useState(false)
   const [view, setView] = useState<"A" | "B">("A")
+  const ganttRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     if (!lastRun) router.replace("/run")
@@ -82,6 +83,56 @@ export default function ResultsDashboard() {
     URL.revokeObjectURL(url)
   }
 
+  function printGantt() {
+  if (typeof window === "undefined") return
+  if (!ganttRef.current) return
+
+  const html = ganttRef.current.innerHTML
+  const title = instanceLabel || "Gantt"
+
+  const printWindow = window.open("", "_blank", "width=1200,height=800")
+  if (!printWindow) return
+
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>${title}</title>
+        <style>
+          * { box-sizing: border-box; }
+          body {
+            margin: 0;
+            padding: 20px;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #ffffff;
+          }
+          h1 {
+            font-size: 18px;
+            margin: 0 0 12px 0;
+            text-transform: uppercase;
+            font-weight: 700;
+          }
+          .gantt-wrapper {
+            max-width: 1100px;
+            margin: 0 auto;
+            border: 1px solid #ddd;
+            padding: 12px;
+          }
+        </style>
+      </head>
+      <body>
+        <h1>${title} – Gantt</h1>
+        <div class="gantt-wrapper">
+          ${html}
+        </div>
+      </body>
+    </html>
+  `)
+
+  printWindow.document.close()
+  printWindow.focus()
+  printWindow.print()
+}
+
   function exportCSV() {
   if (!lastRun) return
 
@@ -119,7 +170,7 @@ export default function ResultsDashboard() {
           <div className="flex gap-2 no-print">
             <Button variant="ghost" onClick={exportJSON}>exportar JSON</Button>
             <Button onClick={exportCSV}>exportar CSV</Button>
-            <Button variant="outline" onClick={printPDF}>Imprimir PDF</Button>
+            <Button variant="outline" onClick={printGantt}>Imprimir Diagrama</Button>
           </div>
         </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
