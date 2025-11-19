@@ -188,12 +188,42 @@ export default function ResultsDashboard() {
     if (!lastRun?.solution) return;
 
     const ops = lastRun.solution.operations || [];
-
     if (!ops.length) return;
 
-    // usamos COMA como separador
-    const SEP = ",";
+    const SEP = ","; // usamos coma para que Excel lo abra bien
 
+    const meta = lastRun.meta || {};
+    const stats = lastRun.solution.stats || {};
+
+    const strategy = meta.strategy ?? "";
+    const makespan = lastRun.solution.makespan ?? "";
+    const w = (stats.w ?? stats.tardanza ?? stats.tardiness ?? "") as
+      | number
+      | string;
+    const tardanza = (stats.tardanza ?? stats.tardiness ?? "") as
+      | number
+      | string;
+    const elapsedMs = meta.elapsedMs ?? "";
+    const timeLimitMs =
+      typeof meta.timeLimit === "number"
+        ? meta.timeLimit
+        : typeof meta.timeLimit === "string"
+        ? Number(meta.timeLimit)
+        : "";
+    const timestamp = meta.timestamp ?? "";
+
+    // Líneas de metadatos al inicio
+    const metaLines = [
+      ["# strategy", strategy].join(SEP),
+      ["# makespan", makespan].join(SEP),
+      ["# w", w].join(SEP),
+      ["# tardanza", tardanza].join(SEP),
+      ["# elapsed_ms", elapsedMs].join(SEP),
+      ["# time_limit_ms", timeLimitMs].join(SEP),
+      ["# timestamp", timestamp].join(SEP),
+    ];
+
+    // Header de operaciones
     const header = [
       "job_id",
       "machine_id",
@@ -203,6 +233,7 @@ export default function ResultsDashboard() {
       "duration",
     ].join(SEP);
 
+    // Filas de operaciones
     const rows = ops.map((op: any) => {
       const jobId = op.jobId ?? "";
       const machineId = op.machineId ?? "";
@@ -214,8 +245,8 @@ export default function ResultsDashboard() {
       return [jobId, machineId, opId, start, end, duration].join(SEP);
     });
 
-    // BOM para que Excel detecte bien UTF-8
-    const csv = "\ufeff" + [header, ...rows].join("\n");
+    // BOM para que Excel detecte UTF-8
+    const csv = "\ufeff" + [...metaLines, "", header, ...rows].join("\n");
 
     const blob = new Blob([csv], {
       type: "text/csv;charset=utf-8;",
