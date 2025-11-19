@@ -1,0 +1,24 @@
+@media print {
+  /* Fondo limpio */
+  body {
+    background: white !important;
+  }
+
+  /* Ocultar cosas que no quieres en el PDF (botones, toggles, etc.) */
+  .no-print {
+    display: none !important;
+  }
+
+  /* Que el “papel” ocupe todo y sin sombras */
+  .print-page {
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0.5cm !important;
+  }
+
+  /* Opcional: ajustar cards para que parezcan bloques planos en el PDF */
+  .print-page .card {
+    box-shadow: none !important;
+    border-color: #ddd !important;
+  }
+}
