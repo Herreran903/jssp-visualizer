@@ -1,24 +1,28 @@
 @media print {
-  /* Fondo limpio */
-  body {
-    background: white !important;
+  /* Cuando NO estamos en modo "printing-gantt", comportamiento normal */
+  body:not(.printing-gantt) {
+    /* aquí podrías dejar lo que ya tengas o nada */
   }
 
-  /* Ocultar cosas que no quieres en el PDF (botones, toggles, etc.) */
+  /* Modo imprimir solo el Gantt */
+  body.printing-gantt * {
+    visibility: hidden !important;
+  }
+
+  body.printing-gantt .gantt-print-area,
+  body.printing-gantt .gantt-print-area * {
+    visibility: visible !important;
+  }
+
+  body.printing-gantt .gantt-print-area {
+    position: absolute;
+    inset: 0;          /* top:0, right:0, bottom:0, left:0 */
+    margin: 1cm;       /* margen dentro de la hoja */
+    box-shadow: none;  /* sin sombra para PDF */
+  }
+
+  /* Cualquier cosa marcada como no-print, se oculta siempre en impresión */
   .no-print {
     display: none !important;
-  }
-
-  /* Que el “papel” ocupe todo y sin sombras */
-  .print-page {
-    box-shadow: none !important;
-    margin: 0 !important;
-    padding: 0.5cm !important;
-  }
-
-  /* Opcional: ajustar cards para que parezcan bloques planos en el PDF */
-  .print-page .card {
-    box-shadow: none !important;
-    border-color: #ddd !important;
   }
 }

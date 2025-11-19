@@ -85,52 +85,15 @@ export default function ResultsDashboard() {
 
   function printGantt() {
   if (typeof window === "undefined") return
-  if (!ganttRef.current) return
 
-  const html = ganttRef.current.innerHTML
-  const title = instanceLabel || "Gantt"
+  // Marcamos el body para el modo impresión de Gantt
+  document.body.classList.add("printing-gantt")
 
-  const printWindow = window.open("", "_blank", "width=1200,height=800")
-  if (!printWindow) return
-
-  printWindow.document.write(`
-    <html>
-      <head>
-        <title>${title}</title>
-        <style>
-          * { box-sizing: border-box; }
-          body {
-            margin: 0;
-            padding: 20px;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            background: #ffffff;
-          }
-          h1 {
-            font-size: 18px;
-            margin: 0 0 12px 0;
-            text-transform: uppercase;
-            font-weight: 700;
-          }
-          .gantt-wrapper {
-            max-width: 1100px;
-            margin: 0 auto;
-            border: 1px solid #ddd;
-            padding: 12px;
-          }
-        </style>
-      </head>
-      <body>
-        <h1>${title} – Gantt</h1>
-        <div class="gantt-wrapper">
-          ${html}
-        </div>
-      </body>
-    </html>
-  `)
-
-  printWindow.document.close()
-  printWindow.focus()
-  printWindow.print()
+  // Pequeño delay para que el navegador aplique los estilos antes de imprimir
+  setTimeout(() => {
+    window.print()
+    document.body.classList.remove("printing-gantt")
+  }, 50)
 }
 
   function exportCSV() {
@@ -282,15 +245,15 @@ export default function ResultsDashboard() {
         )}
       </Card>
       {current?.solution && (
-        <>
-          <Card className="font-hand">
-            <div className="mb-3 text-sm text-slate-700 uppercase">Gantt</div>
-            <GanttMini
-              makespan={current.solution.makespan}
-              machines={current.solution.machines}
-              operations={current.solution.operations}
-            />
-          </Card>
+  <>
+    <Card className="font-hand gantt-print-area">
+      <div className="mb-3 text-sm text-slate-700 uppercase">Gantt</div>
+      <GanttMini
+        makespan={current.solution.makespan}
+        machines={current.solution.machines}
+        operations={current.solution.operations}
+      />
+    </Card>
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
             <Stat label="Makespan" value={current.solution.makespan} />
             <Stat label="Ops" value={current.solution.operations.length} />
