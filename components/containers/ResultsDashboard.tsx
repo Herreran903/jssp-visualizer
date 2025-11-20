@@ -60,8 +60,30 @@ export default function ResultsDashboard() {
   const canCompare = Boolean(prevRun?.solution);
 
   const chartData = useMemo(() => {
-    const stats = current?.solution?.stats || {};
-    return Object.keys(stats).map((k) => ({ name: k, value: stats[k] }));
+    if (!current?.solution) return [];
+
+    const { stats = {}, makespan } = current.solution;
+    const data: { name: string; value: number }[] = [];
+
+    Object.entries(stats).forEach(([key, rawValue]) => {
+      const value = Number(rawValue ?? 0);
+
+      if (key === "w") {
+        // mostrar "peso" en vez de "w"
+        data.push({ name: "peso", value });
+      } else if (key === "tardanza" || key === "tardiness") {
+        // mostrar "tiempo total" y usar el makespan
+        data.push({
+          name: "tiempo total",
+          value: typeof makespan === "number" ? makespan : 0,
+        });
+      } else {
+        // el resto igual
+        data.push({ name: key, value });
+      }
+    });
+
+    return data;
   }, [current]);
 
   // Actions
