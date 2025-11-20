@@ -1,9 +1,19 @@
 // components/ui/GanttMini.tsx
 import React from "react"
-import type { Operation, Machine } from "../../types/solution"
+import type { Operation, Machine, MaintenanceWindow } from "../../types/solution"
 import { toPercent } from "../../lib/gantt"
 
-export default function GanttMini({ makespan, machines, operations }: { makespan: number; machines: Machine[]; operations: Operation[] }) {
+export default function GanttMini({
+  makespan,
+  machines,
+  operations,
+  maintenanceWindows = []
+}: {
+  makespan: number
+  machines: Machine[]
+  operations: Operation[]
+  maintenanceWindows?: MaintenanceWindow[]
+}) {
   const opsByMachine = new Map<string, Operation[]>()
   operations.forEach((op) => {
     if (!opsByMachine.has(op.machineId)) opsByMachine.set(op.machineId, [])
@@ -12,6 +22,13 @@ export default function GanttMini({ makespan, machines, operations }: { makespan
 
   machines.forEach((m) => {
     opsByMachine.set(m.id, (opsByMachine.get(m.id) || []).sort((a, b) => a.start - b.start))
+  })
+
+  // Group maintenance windows by machine
+  const maintByMachine = new Map<string, MaintenanceWindow[]>()
+  maintenanceWindows.forEach((mw) => {
+    if (!maintByMachine.has(mw.machineId)) maintByMachine.set(mw.machineId, [])
+    maintByMachine.get(mw.machineId)!.push(mw)
   })
 
   // Generate unique colors for each job
@@ -64,6 +81,28 @@ export default function GanttMini({ makespan, machines, operations }: { makespan
             </div>
             <div className="gantt-timeline">
               <div className="gantt-grid-overlay" />
+              
+              {/* Maintenance windows */}
+              {(maintByMachine.get(m.id) || []).map((mw, mwIdx) => {
+                const left = toPercent(mw.start, makespan)
+                const width = toPercent(mw.duration, makespan)
+                
+                return (
+                  <div
+                    key={`maint-${m.id}-${mwIdx}`}
+                    className="gantt-maintenance"
+                    style={{
+                      left: `${left}%`,
+                      width: `${width}%`,
+                    }}
+                    title={`Mantenimiento\nMáquina: ${m.name}\nInicio: ${mw.start}\nFin: ${mw.end}\nDuración: ${mw.duration}`}
+                  >
+                    <span className="gantt-maintenance-label">MANT</span>
+                  </div>
+                )
+              })}
+              
+              {/* Operations */}
               {(opsByMachine.get(m.id) || []).map((op) => {
                 const left = toPercent(op.start, makespan)
                 const width = toPercent(op.duration, makespan)
@@ -104,6 +143,14 @@ export default function GanttMini({ makespan, machines, operations }: { makespan
               <span className="gantt-legend-label">{jobId}</span>
             </div>
           ))}
+          {maintenanceWindows.length > 0 && (
+            <div className="gantt-legend-item">
+              <div
+                className="gantt-legend-color gantt-legend-maintenance"
+              />
+              <span className="gantt-legend-label">Mantenimiento</span>
+            </div>
+          )}
         </div>
       </div>
     </div>

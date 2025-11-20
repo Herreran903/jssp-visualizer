@@ -571,6 +571,7 @@ export default function ResultsDashboard() {
                 makespan={current.solution.makespan}
                 machines={current.solution.machines}
                 operations={current.solution.operations}
+                maintenanceWindows={current.solution.maintenanceWindows}
               />
             </div>
           </Card>

@@ -215,6 +215,50 @@
   font-family: var(--font-hand), sans-serif;
 }
 
+/* Maintenance windows */
+.gantt-maintenance {
+  position: absolute;
+  height: 48px;
+  top: 12px;
+  border-radius: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    #DC2626,
+    #DC2626 10px,
+    #B91C1C 10px,
+    #B91C1C 20px
+  );
+  border: 2px solid #991B1B;
+  opacity: 0.85;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8px;
+  overflow: hidden;
+  min-width: 40px;
+  z-index: 8;
+}
+
+.gantt-maintenance:hover {
+  opacity: 1;
+  border-width: 3px;
+  z-index: 15;
+  filter: brightness(1.1);
+}
+
+.gantt-maintenance-label {
+  font-size: 11px;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.95);
+  font-family: var(--font-hand), sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  line-height: 1;
+}
+
 /* Legend */
 .gantt-legend {
   display: flex;
@@ -264,6 +308,17 @@
   font-weight: 600;
   color: var(--color-text-primary);
   font-family: var(--font-hand), sans-serif;
+}
+
+.gantt-legend-maintenance {
+  background: repeating-linear-gradient(
+    45deg,
+    #DC2626,
+    #DC2626 4px,
+    #B91C1C 4px,
+    #B91C1C 8px
+  );
+  border-color: #991B1B;
 }
 
 /* Dark theme adjustments */

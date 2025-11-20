@@ -13,9 +13,17 @@ export interface Operation {
   duration: number
 }
 
+export interface MaintenanceWindow {
+  machineId: string
+  start: number
+  end: number
+  duration: number
+}
+
 export interface Solution {
   makespan: number
   machines: Machine[]
   operations: Operation[]
+  maintenanceWindows?: MaintenanceWindow[]
   stats: Record<string, number>
 }
