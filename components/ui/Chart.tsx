@@ -2,19 +2,22 @@
 "use client"
 import { BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, LineChart, Line, ResponsiveContainer } from "recharts"
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label, helpMap }: any) => {
   if (active && payload && payload.length) {
+    const value = payload[0]?.value
+    const help = label && helpMap ? helpMap[label] : undefined
     return (
       <div className="chart-tooltip">
         <div className="chart-tooltip-label">{label}</div>
-        <div className="chart-tooltip-value">{payload[0].value}</div>
+        <div className="chart-tooltip-value">{value}</div>
+        {help ? <div className="chart-tooltip-help">{help}</div> : null}
       </div>
     )
   }
   return null
 }
 
-export default function Chart({ data, kind = "bar" }: { data: any[]; kind?: "bar" | "line" }) {
+export default function Chart({ data, kind = "bar", helpMap }: { data: any[]; kind?: "bar" | "line"; helpMap?: Record<string, string> }) {
   if (kind === "line") {
     return (
       <div className="chart-container">
@@ -39,7 +42,7 @@ export default function Chart({ data, kind = "bar" }: { data: any[]; kind?: "bar
               tickLine={false}
               axisLine={{ stroke: 'var(--color-border-subtle)', strokeWidth: 1, strokeDasharray: '3 3' }}
             />
-            <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'var(--color-accent)', strokeWidth: 1, strokeDasharray: '3 3' }} />
+            <Tooltip content={<CustomTooltip helpMap={helpMap} />} cursor={{ stroke: 'var(--color-accent)', strokeWidth: 1, strokeDasharray: '3 3' }} />
             <Line
               type="monotone"
               dataKey="value"
@@ -76,7 +79,7 @@ export default function Chart({ data, kind = "bar" }: { data: any[]; kind?: "bar
             tickLine={false}
             axisLine={{ stroke: 'var(--color-border-subtle)', strokeWidth: 1, strokeDasharray: '3 3' }}
           />
-          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--overlay-04)' }} />
+          <Tooltip content={<CustomTooltip helpMap={helpMap} />} cursor={{ fill: 'var(--overlay-04)' }} />
           <Bar
             dataKey="value"
             fill="var(--color-accent)"

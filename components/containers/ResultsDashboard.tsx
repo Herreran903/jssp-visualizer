@@ -86,6 +86,19 @@ export default function ResultsDashboard() {
     return data;
   }, [current]);
 
+  // Help text for metrics (tooltips)
+  const helpMap = useMemo(() => {
+    const map: Record<string, string> = {
+      "peso": "Suma de pesos usada por la función objetivo de tardanza ponderada.",
+      "tiempo total": "Duración total del cronograma (makespan).",
+    };
+    const st = current?.solution?.stats || {};
+    if ("maint_windows" in st) map["maint_windows"] = "Número de ventanas de mantenimiento consideradas.";
+    if ("maint_time" in st) map["maint_time"] = "Tiempo total empleado en mantenimiento.";
+    if ("violations" in st) map["violations"] = "Número de restricciones incumplidas por la solución.";
+    return map;
+  }, [current]);
+
   // Actions
 
   async function copyJSON() {
@@ -433,27 +446,27 @@ export default function ResultsDashboard() {
               </thead>
               <tbody>
                 <tr className="border-b border-dashed border-black/10">
-                  <td className="px-3 py-2">Makespan</td>
+                  <td className="px-3 py-2" title="Tiempo total para completar todos los trabajos (longitud del cronograma).">Makespan</td>
                   <td className="px-3 py-2">{sumA?.makespan ?? "—"}</td>
                   <td className="px-3 py-2">{sumB?.makespan ?? "—"}</td>
                 </tr>
                 <tr className="border-b border-dashed border-black/10">
-                  <td className="px-3 py-2">Tardiness total</td>
+                  <td className="px-3 py-2" title="Suma de tardanzas ponderadas o no, según el modelo.">Tardiness total</td>
                   <td className="px-3 py-2">{sumA?.tardinessTotal ?? "—"}</td>
                   <td className="px-3 py-2">{sumB?.tardinessTotal ?? "—"}</td>
                 </tr>
                 <tr className="border-b border-dashed border-black/10">
-                  <td className="px-3 py-2">#Operaciones</td>
+                  <td className="px-3 py-2" title="Cantidad de operaciones programadas.">#Operaciones</td>
                   <td className="px-3 py-2">{sumA?.operations ?? "—"}</td>
                   <td className="px-3 py-2">{sumB?.operations ?? "—"}</td>
                 </tr>
                 <tr className="border-b border-dashed border-black/10">
-                  <td className="px-3 py-2">#Violaciones</td>
+                  <td className="px-3 py-2" title="Número de restricciones incumplidas por la solución.">#Violaciones</td>
                   <td className="px-3 py-2">{sumA?.violations ?? "—"}</td>
                   <td className="px-3 py-2">{sumB?.violations ?? "—"}</td>
                 </tr>
                 <tr className="border-b border-dashed border-black/10 align-top">
-                  <td className="px-3 py-2">Utilización por máquina</td>
+                  <td className="px-3 py-2" title="Proporción del tiempo activo de cada máquina respecto al makespan.">Utilización por máquina</td>
                   <td className="px-3 py-2">
                     {sumA?.utilPerMachine
                       ? Object.entries(sumA.utilPerMachine).map(([m, v]) => (
@@ -491,15 +504,27 @@ export default function ResultsDashboard() {
             </div>
           </Card>
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-            <Stat label="Makespan" value={current.solution.makespan} />
-            <Stat label="Ops" value={current.solution.operations.length} />
-            <Stat label="Máquinas" value={current.solution.machines.length} />
+            <Stat
+              label="Makespan"
+              value={current.solution.makespan}
+              help="Tiempo total para completar todos los trabajos (longitud del cronograma)."
+            />
+            <Stat
+              label="Ops"
+              value={current.solution.operations.length}
+              help="Cantidad de operaciones programadas en la solución."
+            />
+            <Stat
+              label="Máquinas"
+              value={current.solution.machines.length}
+              help="Cantidad de recursos/máquinas usadas en la instancia."
+            />
           </div>
           <Card className="font-hand">
             <div className="mb-3 text-sm text-slate-700 uppercase">
               Métricas
             </div>
-            <Chart data={chartData} kind="bar" />
+            <Chart data={chartData} kind="bar" helpMap={helpMap} />
           </Card>
         </>
       )}
