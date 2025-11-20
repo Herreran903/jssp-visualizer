@@ -11,6 +11,7 @@ export interface Operation {
   start: number
   end: number
   duration: number
+  dueDate?: number  // Due date for the job (optional, for tardiness visualization)
 }
 
 export interface MaintenanceWindow {

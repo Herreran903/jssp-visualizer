@@ -39,7 +39,7 @@
 .gantt-timeline-header {
   flex: 1;
   position: relative;
-  min-width: 800px;
+  min-width: 700px;
   height: 48px;
   padding-right: 80px;
 }
@@ -85,9 +85,16 @@
   font-family: var(--font-hand), sans-serif;
 }
 
-.gantt-tick:last-child .gantt-tick-label {
+.gantt-tick-label {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.gantt-tick--last .gantt-tick-label {
   left: auto;
-  right: 0;
+  right: 4px;
+  z-index: 1;
   transform: translateX(0);
 }
 
@@ -215,6 +222,68 @@
   font-family: var(--font-hand), sans-serif;
 }
 
+/* Tardy operations (operations that finish after due date) */
+.gantt-operation-tardy {
+  border-width: 3px;
+  border-style: dashed;
+  animation: pulse-tardy 2s ease-in-out infinite;
+}
+
+.gantt-operation-tardy:hover {
+  border-width: 4px;
+}
+
+.gantt-tardy-indicator {
+  color: #FEF08A;
+  font-size: 13px;
+  font-weight: 900;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  animation: blink 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-tardy {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.gantt-due-date-marker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #F59E0B;
+  border-left: 2px dashed #D97706;
+  z-index: 5;
+  pointer-events: all;
+}
+
+.gantt-due-date-marker::before {
+  content: attr(data-duedate);
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  background: #FEF3C7;
+  padding: 2px 6px;
+  border-radius: 2px;
+  border: 1px solid #F59E0B;
+  white-space: nowrap;
+}
+
 /* Maintenance windows */
 .gantt-maintenance {
   position: absolute;
@@ -321,6 +390,11 @@
   border-color: #991B1B;
 }
 
+.gantt-legend-due-date {
+  background: #F59E0B;
+  border-color: #D97706;
+}
+
 /* Dark theme adjustments */
 html[data-theme="dark"] .gantt-legend-color {
   border-color: rgba(255, 255, 255, 0.2);
@@ -374,3 +448,4 @@ html[data-theme="dark"] .gantt-legend-color {
   text-transform: uppercase;
   letter-spacing: 0.02em;
 }
+

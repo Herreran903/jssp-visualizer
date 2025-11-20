@@ -1,56 +1,121 @@
 // components/ui/GanttMini.tsx
-import React from "react"
-import type { Operation, Machine, MaintenanceWindow } from "../../types/solution"
-import { toPercent } from "../../lib/gantt"
+import React from "react";
+import type {
+  Operation,
+  Machine,
+  MaintenanceWindow,
+} from "../../types/solution";
+import { toPercent } from "../../lib/gantt";
 
 export default function GanttMini({
   makespan,
   machines,
   operations,
-  maintenanceWindows = []
+  maintenanceWindows = [],
 }: {
-  makespan: number
-  machines: Machine[]
-  operations: Operation[]
-  maintenanceWindows?: MaintenanceWindow[]
+  makespan: number;
+  machines: Machine[];
+  operations: Operation[];
+  maintenanceWindows?: MaintenanceWindow[];
 }) {
-  const opsByMachine = new Map<string, Operation[]>()
+  const opsByMachine = new Map<string, Operation[]>();
   operations.forEach((op) => {
-    if (!opsByMachine.has(op.machineId)) opsByMachine.set(op.machineId, [])
-    opsByMachine.get(op.machineId)!.push(op)
-  })
+    if (!opsByMachine.has(op.machineId)) opsByMachine.set(op.machineId, []);
+    opsByMachine.get(op.machineId)!.push(op);
+  });
 
   machines.forEach((m) => {
-    opsByMachine.set(m.id, (opsByMachine.get(m.id) || []).sort((a, b) => a.start - b.start))
-  })
+    opsByMachine.set(
+      m.id,
+      (opsByMachine.get(m.id) || []).sort((a, b) => a.start - b.start)
+    );
+  });
 
   // Group maintenance windows by machine
-  const maintByMachine = new Map<string, MaintenanceWindow[]>()
+  const maintByMachine = new Map<string, MaintenanceWindow[]>();
   maintenanceWindows.forEach((mw) => {
-    if (!maintByMachine.has(mw.machineId)) maintByMachine.set(mw.machineId, [])
-    maintByMachine.get(mw.machineId)!.push(mw)
-  })
+    if (!maintByMachine.has(mw.machineId)) maintByMachine.set(mw.machineId, []);
+    maintByMachine.get(mw.machineId)!.push(mw);
+  });
 
   // Generate unique colors for each job
-  const uniqueJobs = Array.from(new Set(operations.map(op => op.jobId))).sort()
-  const jobColors = new Map<string, string>()
-  
+  const uniqueJobs = Array.from(
+    new Set(operations.map((op) => op.jobId))
+  ).sort();
+  const jobColors = new Map<string, string>();
+
   const colorPalette = [
-    '#1E40AF', // blue-800
-    '#B91C1C', // red-700
-    '#15803D', // green-700
-    '#A16207', // yellow-700
-    '#7C3AED', // violet-600
-    '#DB2777', // pink-600
-    '#0891B2', // cyan-600
-    '#EA580C', // orange-600
-    '#4338CA', // indigo-700
-    '#059669', // emerald-600
-  ]
-  
+    "#1E40AF", // blue-800
+    "#B91C1C", // red-700
+    "#15803D", // green-700
+    "#A16207", // yellow-700
+    "#7C3AED", // violet-600
+    "#DB2777", // pink-600
+    "#0891B2", // cyan-600
+    "#EA580C", // orange-600
+    "#4338CA", // indigo-700
+    "#059669", // emerald-600
+  ];
+
   uniqueJobs.forEach((jobId, idx) => {
-    jobColors.set(jobId, colorPalette[idx % colorPalette.length])
-  })
+    jobColors.set(jobId, colorPalette[idx % colorPalette.length]);
+  });
+
+  const dueDates = new Map<number, Set<string>>();
+
+  operations.forEach((op) => {
+    if (op.dueDate !== undefined && op.dueDate !== null) {
+      if (!dueDates.has(op.dueDate)) {
+        dueDates.set(op.dueDate, new Set<string>());
+      }
+      dueDates.get(op.dueDate)!.add(op.jobId);
+    }
+  });
+
+  type JobTiming = {
+    end: number;
+    dueDate: number | null;
+    tardy: boolean;
+    tardiness: number;
+  };
+
+  const jobTimings = new Map<string, JobTiming>();
+
+  operations.forEach((op) => {
+    const current = jobTimings.get(op.jobId);
+    const end = Math.max(current?.end ?? 0, op.end);
+    const dueDate =
+      current?.dueDate ??
+      (op.dueDate !== undefined && op.dueDate !== null ? op.dueDate : null);
+
+    jobTimings.set(op.jobId, {
+      end,
+      dueDate,
+      tardy: false, // se rellena luego
+      tardiness: 0, // se rellena luego
+    });
+  });
+
+  // Luego calculamos tardanza por job
+  jobTimings.forEach((info, jobId) => {
+    const { end, dueDate } = info;
+    if (dueDate !== null && end > dueDate) {
+      const tardiness = end - dueDate;
+      jobTimings.set(jobId, {
+        end,
+        dueDate,
+        tardy: true,
+        tardiness,
+      });
+    } else {
+      jobTimings.set(jobId, {
+        end,
+        dueDate,
+        tardy: false,
+        tardiness: 0,
+      });
+    }
+  });
 
   return (
     <div className="gantt-enhanced">
@@ -59,21 +124,37 @@ export default function GanttMini({
         <div className="gantt-machine-label-header">Machine</div>
         <div className="gantt-timeline-header">
           <div className="gantt-grid-overlay" />
-          {[0, 25, 50, 75, 100].map((tick) => (
-            <div
-              key={tick}
-              className="gantt-tick"
-              style={{ left: `${tick}%` }}
-            >
-              <span className="gantt-tick-label">{Math.round((tick / 100) * makespan)}</span>
-            </div>
-          ))}
+          {[0, 25, 50, 75, 100].map((tick, idx, arr) => (
+  <div
+    key={tick}
+    className={`gantt-tick ${idx === arr.length - 1 ? "gantt-tick--last" : ""}`}
+    style={{ left: `${tick}%` }}
+  >
+    <span className="gantt-tick-label">
+      {Math.round((tick / 100) * makespan)}
+    </span>
+  </div>
+))}
+          {/* Due date markers */}
+          {Array.from(dueDates.entries()).map(([dueDate, jobsSet]) => {
+            const left = toPercent(dueDate, makespan);
+            const jobs = Array.from(jobsSet);
+            return (
+              <div
+                key={`due-${dueDate}`}
+                className="gantt-due-date-marker"
+                style={{ left: `${left}%` }}
+                data-duedate={dueDate} 
+                title={`Due date: ${dueDate}\nJobs: ${jobs.join(", ")}`}
+              />
+            );
+          })}
         </div>
       </div>
 
       {/* Machine rows */}
       <div className="gantt-body">
-        {machines.map((m, idx) => (
+        {machines.map((m) => (
           <div key={m.id} className="gantt-machine-row">
             <div className="gantt-machine-label">
               <div className="gantt-machine-name">{m.name}</div>
@@ -81,12 +162,12 @@ export default function GanttMini({
             </div>
             <div className="gantt-timeline">
               <div className="gantt-grid-overlay" />
-              
+
               {/* Maintenance windows */}
               {(maintByMachine.get(m.id) || []).map((mw, mwIdx) => {
-                const left = toPercent(mw.start, makespan)
-                const width = toPercent(mw.duration, makespan)
-                
+                const left = toPercent(mw.start, makespan);
+                const width = toPercent(mw.duration, makespan);
+
                 return (
                   <div
                     key={`maint-${m.id}-${mwIdx}`}
@@ -99,31 +180,60 @@ export default function GanttMini({
                   >
                     <span className="gantt-maintenance-label">MANT</span>
                   </div>
-                )
+                );
               })}
-              
+
               {/* Operations */}
               {(opsByMachine.get(m.id) || []).map((op) => {
-                const left = toPercent(op.start, makespan)
-                const width = toPercent(op.duration, makespan)
-                const color = jobColors.get(op.jobId) || '#334155'
-                
+                const left = toPercent(op.start, makespan);
+                const width = toPercent(op.duration, makespan);
+                const color = jobColors.get(op.jobId) || "#334155";
+
+                const jobInfo = jobTimings.get(op.jobId);
+                const isLastOpOfJob =
+                  jobInfo !== undefined && op.end === jobInfo.end;
+                const isTardy = !!jobInfo?.tardy && isLastOpOfJob;
+                const jobTardiness = jobInfo?.tardiness ?? 0;
+                const jobDueDate = jobInfo?.dueDate ?? null;
+
+                const titleLines = [
+                  `Job: ${op.jobId}`,
+                  `Machine: ${m.name}`,
+                  `Start: ${op.start}`,
+                  `End: ${op.end}`,
+                  `Duration: ${op.duration}`,
+                ];
+
+                if (jobDueDate !== null) {
+                  titleLines.push(`Due date (job): ${jobDueDate}`);
+                }
+                if (isTardy) {
+                  titleLines.push(`Job tardiness: ${jobTardiness}`);
+                }
+
                 return (
                   <div
                     key={op.opId}
-                    className="gantt-operation"
+                    className={`gantt-operation ${
+                      isTardy ? "gantt-operation-tardy" : ""
+                    }`}
                     style={{
                       left: `${left}%`,
                       width: `${width}%`,
                       backgroundColor: color,
                       borderColor: color,
                     }}
-                    title={`Job: ${op.jobId}\nMachine: ${m.name}\nStart: ${op.start}\nEnd: ${op.end}\nDuration: ${op.duration}`}
+                    title={titleLines.join("\n")}
                   >
                     <span className="gantt-operation-label">{op.jobId}</span>
-                    <span className="gantt-operation-time">{op.duration}u</span>
+                    <span className="gantt-operation-time">
+                      {op.duration}u
+                      {isTardy && (
+                        <span className="gantt-tardy-indicator"> ⚠</span>
+                      )}
+                    </span>
                   </div>
-                )
+                );
               })}
             </div>
           </div>
@@ -145,14 +255,18 @@ export default function GanttMini({
           ))}
           {maintenanceWindows.length > 0 && (
             <div className="gantt-legend-item">
-              <div
-                className="gantt-legend-color gantt-legend-maintenance"
-              />
+              <div className="gantt-legend-color gantt-legend-maintenance" />
               <span className="gantt-legend-label">Mantenimiento</span>
+            </div>
+          )}
+          {dueDates.size > 0 && (
+            <div className="gantt-legend-item">
+              <div className="gantt-legend-color gantt-legend-due-date" />
+              <span className="gantt-legend-label">Due Date</span>
             </div>
           )}
         </div>
       </div>
     </div>
-  )
+  );
 }
