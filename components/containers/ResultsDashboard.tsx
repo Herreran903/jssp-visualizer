@@ -190,19 +190,14 @@ export default function ResultsDashboard() {
     const ops = lastRun.solution.operations || [];
     if (!ops.length) return;
 
-    const SEP = ","; // usamos coma para que Excel lo abra bien
+    const SEP = ","; // coma para que Excel lo abra en columnas
 
     const meta = lastRun.meta || {};
     const stats = lastRun.solution.stats || {};
 
+    const modelId = meta.modelId ?? ""; // 'jssp_maint' o 'tardanza_ponderada'
     const strategy = meta.strategy ?? "";
     const makespan = lastRun.solution.makespan ?? "";
-    const w = (stats.w ?? stats.tardanza ?? stats.tardiness ?? "") as
-      | number
-      | string;
-    const tardanza = (stats.tardanza ?? stats.tardiness ?? "") as
-      | number
-      | string;
     const elapsedMs = meta.elapsedMs ?? "";
     const timeLimitMs =
       typeof meta.timeLimit === "number"
@@ -212,18 +207,47 @@ export default function ResultsDashboard() {
         : "";
     const timestamp = meta.timestamp ?? "";
 
-    // Líneas de metadatos al inicio
+    // ==== métricas según el modelo ====
+    let extraStatLines: string[] = [];
+
+    if (modelId === "tardanza_ponderada") {
+      const w = (stats.w ?? stats.tardanza ?? stats.tardiness ?? "") as
+        | number
+        | string;
+      const tardanza = (stats.tardanza ?? stats.tardiness ?? "") as
+        | number
+        | string;
+
+      extraStatLines = [
+        ["# w", w].join(SEP),
+        ["# tardanza", tardanza].join(SEP),
+      ];
+    } else if (modelId === "jssp_maint") {
+      const maintWindows = stats.maint_windows ?? "";
+      const maintTime = stats.maint_time ?? "";
+
+      extraStatLines = [
+        ["# maint_windows", maintWindows].join(SEP),
+        ["# maint_time", maintTime].join(SEP),
+      ];
+    } else {
+      // modelo genérico: volcamos todas las stats que haya
+      extraStatLines = Object.entries(stats).map(([k, v]) =>
+        [`# ${k}`, v ?? ""].join(SEP)
+      );
+    }
+
+    // ==== líneas de meta comunes ====
     const metaLines = [
       ["# strategy", strategy].join(SEP),
       ["# makespan", makespan].join(SEP),
-      ["# w", w].join(SEP),
-      ["# tardanza", tardanza].join(SEP),
+      ...extraStatLines,
       ["# elapsed_ms", elapsedMs].join(SEP),
       ["# time_limit_ms", timeLimitMs].join(SEP),
       ["# timestamp", timestamp].join(SEP),
     ];
 
-    // Header de operaciones
+    // ==== header + operaciones ====
     const header = [
       "job_id",
       "machine_id",
@@ -233,11 +257,10 @@ export default function ResultsDashboard() {
       "duration",
     ].join(SEP);
 
-    // Filas de operaciones
     const rows = ops.map((op: any) => {
       const jobId = op.jobId ?? "";
       const machineId = op.machineId ?? "";
-      const opId = op.id ?? `${jobId}-${machineId}`;
+      const opId = op.opId ?? op.id ?? `${jobId}-${machineId}`;
       const start = op.start ?? 0;
       const end = op.end ?? start + (op.duration ?? 0);
       const duration = op.duration ?? end - start;
