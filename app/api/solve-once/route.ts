@@ -21,10 +21,9 @@ function buildMeta(input: {
     jobs: jobsSet.size || undefined,
     machines: machines.length || undefined,
     operations: operations.length || undefined,
-    elapsedMs: 1234,
     timeLimit: timeLimitMs || undefined,
-    seed: 0,
-    strategy: input.solverConfig?.searchHeuristic,
+    searchHeuristic: input.solverConfig?.searchHeuristic,
+    valueChoice: input.solverConfig?.valueChoice,
     modelId: input.solverConfig?.problemType,
     variation: input.solverConfig?.solver,
     timestamp: new Date().toISOString(),
@@ -90,7 +89,9 @@ export async function POST(req: Request) {
 
     const res = await fetch(`${backendUrl}/api/solve-once`, { method: "POST", body: form })
     const data = await res.json()
-    const meta = buildMeta({ instanceId, instanceName, solverConfig, solution: data?.solution })
+    const frontendMeta = buildMeta({ instanceId, instanceName, solverConfig, solution: data?.solution })
+    // Merge backend meta with frontend meta, preserving backend values like elapsedMs
+    const meta = { ...frontendMeta, ...data?.meta }
     return NextResponse.json({ ...data, meta }, { status: res.status })
   } else {
     const body = await req.json().catch(() => ({}))
@@ -100,12 +101,14 @@ export async function POST(req: Request) {
       headers: { "Content-Type": "application/json" },
     })
     const data = await res.json()
-    const meta = buildMeta({
+    const frontendMeta = buildMeta({
       instanceId: body.instanceId,
       instanceName: body.instanceName,
       solverConfig: body.solverConfig,
       solution: data?.solution,
     })
+    // Merge backend meta with frontend meta, preserving backend values like elapsedMs
+    const meta = { ...frontendMeta, ...data?.meta }
     return NextResponse.json({ ...data, meta }, { status: res.status })
   }
 }

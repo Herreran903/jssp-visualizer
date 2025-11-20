@@ -9,6 +9,7 @@ import { useEffect, useMemo, useState, useRef } from "react";
 import html2canvas from "html2canvas";
 import { useRouter } from "next/navigation";
 import { jsspResultToCSV } from "../../lib/jssp-result-to-csv";
+import { formatDateTime } from "../../lib/formatting";
 
 export default function ResultsDashboard() {
   const router = useRouter();
@@ -23,6 +24,7 @@ export default function ResultsDashboard() {
 
   const current = view === "A" ? lastRun : prevRun;
 
+  // Unified metric structure for both models
   const summarize = (env: any | null) => {
     if (!env?.solution) return null;
     const s = env.solution;
@@ -30,6 +32,13 @@ export default function ResultsDashboard() {
     const ops = s.operations || [];
     const machines = s.machines || [];
     const stats = s.stats || {};
+    const modelId = env.meta?.modelId || "";
+    // Round elapsedMs to 1 decimal place
+    const elapsedMs = env.meta?.elapsedMs !== null && env.meta?.elapsedMs !== undefined
+      ? Math.round(env.meta.elapsedMs * 10) / 10
+      : null;
+
+    // Calculate machine utilization
     const durationsByMachine = new Map<string, number>();
     for (const op of ops) {
       durationsByMachine.set(
@@ -42,16 +51,22 @@ export default function ResultsDashboard() {
       const dur = durationsByMachine.get(m.id) || 0;
       utilPerMachine[m.id] = makespan > 0 ? +(dur / makespan).toFixed(3) : 0;
     }
+
     return {
       makespan,
-      tardinessTotal: Number(
-        (stats.w ?? stats.tardanza ?? stats.tardiness ?? 0) as number
-      ),
       operations: ops.length,
       machines: machines.length,
-      violations: Number((stats.violations ?? 0) as number),
       utilPerMachine,
-      stats,
+      elapsedMs,
+      // Tardanza model metrics
+      w: stats.w ?? null,
+      tardanza_total: stats.tardanza ?? stats.tardiness ?? null,
+      jobs_tardios: stats.jobs_tardios ?? null,
+      max_tardanza: stats.max_tardanza ?? null,
+      // Maintenance model metrics
+      maint_windows: stats.maint_windows ?? null,
+      maint_time: stats.maint_time ?? null,
+      modelId,
     };
   };
 
@@ -59,43 +74,48 @@ export default function ResultsDashboard() {
   const sumB = useMemo(() => summarize(prevRun), [prevRun]);
   const canCompare = Boolean(prevRun?.solution);
 
+  // Tooltip definitions for all metrics
+  const metricTooltips: Record<string, string> = {
+    makespan: "Tiempo total del cronograma (duración desde el inicio hasta que termina la última operación)",
+    operations: "Número total de operaciones programadas en la solución",
+    machines: "Número de máquinas/recursos disponibles en la instancia",
+    utilPerMachine: "Proporción del makespan en que cada máquina está ejecutando operaciones (suma de duraciones / makespan)",
+    elapsedMs: "Tiempo de ejecución real del solver en milisegundos",
+    w: "Tardanza ponderada total (suma de tardanzas multiplicadas por sus pesos)",
+    tardanza_total: "Suma de tardanzas sin pesos (tiempo que cada trabajo excede su due date)",
+    jobs_tardios: "Cantidad de trabajos que terminan después de su due date",
+    max_tardanza: "Mayor tardanza individual entre todos los trabajos",
+    maint_windows: "Cantidad de ventanas de mantenimiento activas en el cronograma",
+    maint_time: "Suma de tiempo bloqueado por mantenimiento (tiempo total no productivo)",
+  };
+
+  // Chart data with proper metric names
   const chartData = useMemo(() => {
     if (!current?.solution) return [];
 
-    const { stats = {}, makespan } = current.solution;
+    const { stats = {} } = current.solution;
     const data: { name: string; value: number }[] = [];
 
+    // Add metrics based on what's available in stats
     Object.entries(stats).forEach(([key, rawValue]) => {
       const value = Number(rawValue ?? 0);
-
-      if (key === "w") {
-        // mostrar "peso" en vez de "w"
-        data.push({ name: "peso", value });
-      } else if (key === "tardanza" || key === "tardiness") {
-        // mostrar "tiempo total" y usar el makespan
-        data.push({
-          name: "tiempo total",
-          value: typeof makespan === "number" ? makespan : 0,
-        });
-      } else {
-        // el resto igual
-        data.push({ name: key, value });
-      }
+      data.push({ name: key, value });
     });
 
     return data;
   }, [current]);
 
-  // Help text for metrics (tooltips)
+  // Help map for chart tooltips
   const helpMap = useMemo(() => {
-    const map: Record<string, string> = {
-      "peso": "Suma de pesos usada por la función objetivo de tardanza ponderada.",
-      "tiempo total": "Duración total del cronograma (makespan).",
-    };
+    const map: Record<string, string> = {};
     const st = current?.solution?.stats || {};
-    if ("maint_windows" in st) map["maint_windows"] = "Número de ventanas de mantenimiento consideradas.";
-    if ("maint_time" in st) map["maint_time"] = "Tiempo total empleado en mantenimiento.";
-    if ("violations" in st) map["violations"] = "Número de restricciones incumplidas por la solución.";
+    
+    Object.keys(st).forEach((key) => {
+      if (metricTooltips[key]) {
+        map[key] = metricTooltips[key];
+      }
+    });
+
     return map;
   }, [current]);
 
@@ -230,10 +250,14 @@ export default function ResultsDashboard() {
     const meta = lastRun.meta || {};
     const stats = lastRun.solution.stats || {};
 
-    const modelId = meta.modelId ?? ""; // 'jssp_maint' o 'tardanza_ponderada'
-    const strategy = meta.strategy ?? "";
+    const modelId = meta.modelId ?? "";
+    const searchHeuristic = meta.searchHeuristic ?? "";
+    const valueChoice = meta.valueChoice ?? "";
+    const solver = meta.variation ?? "";
     const makespan = lastRun.solution.makespan ?? "";
-    const elapsedMs = meta.elapsedMs ?? "";
+    const elapsedMs = typeof meta.elapsedMs === "number"
+      ? Math.round(meta.elapsedMs * 10) / 10
+      : "";
     const timeLimitMs =
       typeof meta.timeLimit === "number"
         ? meta.timeLimit
@@ -245,25 +269,17 @@ export default function ResultsDashboard() {
     // ==== métricas según el modelo ====
     let extraStatLines: string[] = [];
 
-    if (modelId === "tardanza_ponderada") {
-      const w = (stats.w ?? stats.tardanza ?? stats.tardiness ?? "") as
-        | number
-        | string;
-      const tardanza = (stats.tardanza ?? stats.tardiness ?? "") as
-        | number
-        | string;
-
+    if (modelId === "JOBSHOP_TARDANZA" || modelId === "tardanza_ponderada") {
       extraStatLines = [
-        ["# w", w].join(SEP),
-        ["# tardanza", tardanza].join(SEP),
+        ["# w", stats.w ?? ""].join(SEP),
+        ["# tardanza_total", stats.tardanza ?? stats.tardiness ?? ""].join(SEP),
+        ["# jobs_tardios", stats.jobs_tardios ?? ""].join(SEP),
+        ["# max_tardanza", stats.max_tardanza ?? ""].join(SEP),
       ];
-    } else if (modelId === "jssp_maint") {
-      const maintWindows = stats.maint_windows ?? "";
-      const maintTime = stats.maint_time ?? "";
-
+    } else if (modelId === "JOBSHOP_MANTENIMIENTO" || modelId === "jssp_maint") {
       extraStatLines = [
-        ["# maint_windows", maintWindows].join(SEP),
-        ["# maint_time", maintTime].join(SEP),
+        ["# maint_windows", stats.maint_windows ?? ""].join(SEP),
+        ["# maint_time", stats.maint_time ?? ""].join(SEP),
       ];
     } else {
       // modelo genérico: volcamos todas las stats que haya
@@ -274,7 +290,10 @@ export default function ResultsDashboard() {
 
     // ==== líneas de meta comunes ====
     const metaLines = [
-      ["# strategy", strategy].join(SEP),
+      ["# model_id", modelId].join(SEP),
+      ["# solver", solver].join(SEP),
+      ["# search_heuristic", searchHeuristic].join(SEP),
+      ["# value_choice", valueChoice].join(SEP),
       ["# makespan", makespan].join(SEP),
       ...extraStatLines,
       ["# elapsed_ms", elapsedMs].join(SEP),
@@ -366,13 +385,18 @@ export default function ResultsDashboard() {
               <div className="mb-1 text-xs text-slate-700 uppercase">
                 Fecha/Hora
               </div>
-              <div className="text-sm">{meta.timestamp || "—"}</div>
+              <div className="text-sm">
+                {meta.timestamp ? formatDateTime(meta.timestamp) : "—"}
+              </div>
             </div>
             <div>
               <div className="mb-1 text-xs text-slate-700 uppercase">
-                Estrategia
+                Heurísticas
               </div>
-              <div className="text-sm">{meta.strategy || "—"}</div>
+              <div className="text-sm">
+                {meta.searchHeuristic || "—"}
+                {meta.valueChoice ? ` · ${meta.valueChoice}` : ""}
+              </div>
             </div>
             <div>
               <div className="mb-1 text-xs text-slate-700 uppercase">
@@ -385,16 +409,15 @@ export default function ResultsDashboard() {
             </div>
             <div>
               <div className="mb-1 text-xs text-slate-700 uppercase">
-                Tiempo/Seed
+                Tiempo
               </div>
               <div className="text-sm">
                 {typeof meta.elapsedMs === "number"
-                  ? `${meta.elapsedMs} ms`
+                  ? `${Math.round(meta.elapsedMs * 10) / 10} ms`
                   : "—"}
                 {typeof timeLimitMs === "number"
                   ? ` / límite ${timeLimitMs} ms`
                   : ""}
-                {typeof meta.seed === "number" ? ` · seed ${meta.seed}` : ""}
               </div>
             </div>
           </div>
@@ -434,39 +457,55 @@ export default function ResultsDashboard() {
             </div>
           </div>
         </div>
-        {compare && lastRun?.solution && (
+        {lastRun?.solution && (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="text-left text-slate-700 border-b border-dashed border-black/10">
                 <tr>
                   <th className="px-3 py-2 font-semibold">Métrica</th>
-                  <th className="px-3 py-2 font-semibold">Última</th>
-                  <th className="px-3 py-2 font-semibold">Anterior</th>
+                  <th className="px-3 py-2 font-semibold">
+                    {compare ? "Última" : "Valor"}
+                    {compare && sumA?.modelId && (
+                      <div className="text-xs font-normal text-slate-600 mt-1">
+                        Modelo: {sumA.modelId === "JOBSHOP_MANTENIMIENTO" ? "mantenimiento" : sumA.modelId === "JOBSHOP_TARDANZA" ? "tardanza ponderada" : sumA.modelId}
+                      </div>
+                    )}
+                  </th>
+                  {compare && (
+                    <th className="px-3 py-2 font-semibold">
+                      Anterior
+                      {sumB?.modelId && (
+                        <div className="text-xs font-normal text-slate-600 mt-1">
+                          Modelo: {sumB.modelId === "JOBSHOP_MANTENIMIENTO" ? "mantenimiento" : sumB.modelId === "JOBSHOP_TARDANZA" ? "tardanza ponderada" : sumB.modelId}
+                        </div>
+                      )}
+                    </th>
+                  )}
                 </tr>
               </thead>
               <tbody>
                 <tr className="border-b border-dashed border-black/10">
-                  <td className="px-3 py-2" title="Tiempo total para completar todos los trabajos (longitud del cronograma).">Makespan</td>
+                  <td className="px-3 py-2" title={metricTooltips.makespan}>Makespan</td>
                   <td className="px-3 py-2">{sumA?.makespan ?? "—"}</td>
-                  <td className="px-3 py-2">{sumB?.makespan ?? "—"}</td>
+                  {compare && <td className="px-3 py-2">{sumB?.makespan ?? "—"}</td>}
                 </tr>
                 <tr className="border-b border-dashed border-black/10">
-                  <td className="px-3 py-2" title="Suma de tardanzas ponderadas o no, según el modelo.">Tardiness total</td>
-                  <td className="px-3 py-2">{sumA?.tardinessTotal ?? "—"}</td>
-                  <td className="px-3 py-2">{sumB?.tardinessTotal ?? "—"}</td>
-                </tr>
-                <tr className="border-b border-dashed border-black/10">
-                  <td className="px-3 py-2" title="Cantidad de operaciones programadas.">#Operaciones</td>
+                  <td className="px-3 py-2" title={metricTooltips.operations}>#Operaciones</td>
                   <td className="px-3 py-2">{sumA?.operations ?? "—"}</td>
-                  <td className="px-3 py-2">{sumB?.operations ?? "—"}</td>
+                  {compare && <td className="px-3 py-2">{sumB?.operations ?? "—"}</td>}
                 </tr>
                 <tr className="border-b border-dashed border-black/10">
-                  <td className="px-3 py-2" title="Número de restricciones incumplidas por la solución.">#Violaciones</td>
-                  <td className="px-3 py-2">{sumA?.violations ?? "—"}</td>
-                  <td className="px-3 py-2">{sumB?.violations ?? "—"}</td>
+                  <td className="px-3 py-2" title={metricTooltips.machines}>#Máquinas</td>
+                  <td className="px-3 py-2">{sumA?.machines ?? "—"}</td>
+                  {compare && <td className="px-3 py-2">{sumB?.machines ?? "—"}</td>}
+                </tr>
+                <tr className="border-b border-dashed border-black/10">
+                  <td className="px-3 py-2" title={metricTooltips.elapsedMs}>Tiempo de ejecución (ms)</td>
+                  <td className="px-3 py-2">{sumA && sumA.elapsedMs !== null ? sumA.elapsedMs : "—"}</td>
+                  {compare && <td className="px-3 py-2">{sumB && sumB.elapsedMs !== null ? sumB.elapsedMs : "—"}</td>}
                 </tr>
                 <tr className="border-b border-dashed border-black/10 align-top">
-                  <td className="px-3 py-2" title="Proporción del tiempo activo de cada máquina respecto al makespan.">Utilización por máquina</td>
+                  <td className="px-3 py-2" title={metricTooltips.utilPerMachine}>Utilización por máquina</td>
                   <td className="px-3 py-2">
                     {sumA?.utilPerMachine
                       ? Object.entries(sumA.utilPerMachine).map(([m, v]) => (
@@ -476,15 +515,47 @@ export default function ResultsDashboard() {
                         ))
                       : "—"}
                   </td>
-                  <td className="px-3 py-2">
-                    {sumB?.utilPerMachine
-                      ? Object.entries(sumB.utilPerMachine).map(([m, v]) => (
-                          <span key={m} className="mr-3">
-                            {m}: {v}
-                          </span>
-                        ))
-                      : "—"}
-                  </td>
+                  {compare && (
+                    <td className="px-3 py-2">
+                      {sumB?.utilPerMachine
+                        ? Object.entries(sumB.utilPerMachine).map(([m, v]) => (
+                            <span key={m} className="mr-3">
+                              {m}: {v}
+                            </span>
+                          ))
+                        : "—"}
+                    </td>
+                  )}
+                </tr>
+                <tr className="border-b border-dashed border-black/10">
+                  <td className="px-3 py-2" title={metricTooltips.w}>Tardanza ponderada (w)</td>
+                  <td className="px-3 py-2">{sumA && sumA.w !== null ? sumA.w : "—"}</td>
+                  {compare && <td className="px-3 py-2">{sumB && sumB.w !== null ? sumB.w : "—"}</td>}
+                </tr>
+                <tr className="border-b border-dashed border-black/10">
+                  <td className="px-3 py-2" title={metricTooltips.tardanza_total}>Tardanza total</td>
+                  <td className="px-3 py-2">{sumA && sumA.tardanza_total !== null ? sumA.tardanza_total : "—"}</td>
+                  {compare && <td className="px-3 py-2">{sumB && sumB.tardanza_total !== null ? sumB.tardanza_total : "—"}</td>}
+                </tr>
+                <tr className="border-b border-dashed border-black/10">
+                  <td className="px-3 py-2" title={metricTooltips.jobs_tardios}>Jobs tardíos</td>
+                  <td className="px-3 py-2">{sumA && sumA.jobs_tardios !== null ? sumA.jobs_tardios : "—"}</td>
+                  {compare && <td className="px-3 py-2">{sumB && sumB.jobs_tardios !== null ? sumB.jobs_tardios : "—"}</td>}
+                </tr>
+                <tr className="border-b border-dashed border-black/10">
+                  <td className="px-3 py-2" title={metricTooltips.max_tardanza}>Tardanza máxima</td>
+                  <td className="px-3 py-2">{sumA && sumA.max_tardanza !== null ? sumA.max_tardanza : "—"}</td>
+                  {compare && <td className="px-3 py-2">{sumB && sumB.max_tardanza !== null ? sumB.max_tardanza : "—"}</td>}
+                </tr>
+                <tr className="border-b border-dashed border-black/10">
+                  <td className="px-3 py-2" title={metricTooltips.maint_windows}>Ventanas de mantenimiento</td>
+                  <td className="px-3 py-2">{sumA && sumA.maint_windows !== null ? sumA.maint_windows : "—"}</td>
+                  {compare && <td className="px-3 py-2">{sumB && sumB.maint_windows !== null ? sumB.maint_windows : "—"}</td>}
+                </tr>
+                <tr className="border-b border-dashed border-black/10">
+                  <td className="px-3 py-2" title={metricTooltips.maint_time}>Tiempo de mantenimiento</td>
+                  <td className="px-3 py-2">{sumA && sumA.maint_time !== null ? sumA.maint_time : "—"}</td>
+                  {compare && <td className="px-3 py-2">{sumB && sumB.maint_time !== null ? sumB.maint_time : "—"}</td>}
                 </tr>
               </tbody>
             </table>
@@ -507,17 +578,17 @@ export default function ResultsDashboard() {
             <Stat
               label="Makespan"
               value={current.solution.makespan}
-              help="Tiempo total para completar todos los trabajos (longitud del cronograma)."
+              help={metricTooltips.makespan}
             />
             <Stat
               label="Ops"
               value={current.solution.operations.length}
-              help="Cantidad de operaciones programadas en la solución."
+              help={metricTooltips.operations}
             />
             <Stat
               label="Máquinas"
               value={current.solution.machines.length}
-              help="Cantidad de recursos/máquinas usadas en la instancia."
+              help={metricTooltips.machines}
             />
           </div>
           <Card className="font-hand">
